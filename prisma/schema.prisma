@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                String         @id @default(cuid())
+  email             String         @unique
+  password          String?
+  coustumerId       String         @unique
+  userdetails       Userdetails?
+  sentRequest       Friend[]       @relation("sender")
+  receivedRequests  Friend[]       @relation("receiver")
+  groupAdmin        Group[]        @relation("GroupCreator")
+  groupmembers      Groupmember[]
+  contribution      Contribution[]
+  message           Message[]
+  isVerfied         Boolean        @default(false)
+  isCompleteProfile Boolean        @default(false)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @default(now())
+}
+
+model Userdetails {
+  id           String   @id @default(cuid())
+  user_id      String   @unique
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  name         String
+  mobileNumber String
+  profilephoto String?
+  dateOfbirth  String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Friend {
+  id         String @id @default(cuid())
+  senderId   String
+  receiverId String
+  sender     User   @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver   User   @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+  @@unique([senderId, receiverId])
+}
+
+model Group {
+  id                  String         @id @default(cuid())
+  groupName           String
+  groupCode           String         @unique
+  description         String
+  monthlyContribution Int
+  dueDate             String
+  groupmember         Groupmember[]
+  contribution        Contribution[]
+  message             Message[]
+  totalAmount         Int
+  createdId           String
+  createdBy           User           @relation("GroupCreator", fields: [createdId], references: [id], onDelete: Cascade)
+  createdAt           DateTime       @default(now())
+}
+
+model Groupmember {
+  id       String   @id @default(cuid())
+  userId   String
+  groupId  String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  joinedAt DateTime @default(now())
+  @@unique([userId, groupId])
+}
+
+model Contribution {
+  id      String   @id @default(cuid())
+  userId  String
+  groupId String
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group   Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  amount  String
+  month   String
+  year    String
+  status  status @default(PENDING)
+  paidAt  DateTime @default(now())
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  message   String
+  createdAt DateTime @default(now())
+  updateAt  DateTime @updatedAt
+}
+
+enum status {
+  PENDING
+  PAID
+  OVERDUE
+}
