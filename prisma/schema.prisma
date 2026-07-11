@@ -26,15 +26,16 @@ model User {
 }
 
 model Userdetails {
-  id           String   @id @default(cuid())
-  user_id      String   @unique
-  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  name         String
-  mobileNumber String
-  profilephoto String?
-  dateOfbirth  String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                 String   @id @default(cuid())
+  user_id            String   @unique
+  user               User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  name               String
+  mobileNumber       String
+  isprofileCompleted Boolean  @default(false)
+  profilephoto       String?
+  dateOfbirth        String
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 }
 
 model Friend {
@@ -43,6 +44,7 @@ model Friend {
   receiverId String
   sender     User   @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
   receiver   User   @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
   @@unique([senderId, receiverId])
 }
 
@@ -69,6 +71,7 @@ model Groupmember {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   joinedAt DateTime @default(now())
+
   @@unique([userId, groupId])
 }
 
@@ -81,7 +84,7 @@ model Contribution {
   amount  String
   month   String
   year    String
-  status  status @default(PENDING)
+  status  status   @default(PENDING)
   paidAt  DateTime @default(now())
 }
 
