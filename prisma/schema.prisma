@@ -44,7 +44,6 @@ model Friend {
   receiverId String
   sender     User   @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
   receiver   User   @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
-
   @@unique([senderId, receiverId])
 }
 

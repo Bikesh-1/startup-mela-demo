@@ -30,10 +30,17 @@ export default function Addfriend(){
 
     return(
         <div>
-            <form onSubmit={handleaddingFriend}>
-                <input value={coustumerId} type="text" onChange={(e) => setcoustumerId(e.target.value)}/>
-                <button type="submit">Add friend</button>
+            <form className="font-mono flex items-center justify-center gap-4" onSubmit={handleaddingFriend}>
+                <input
+                placeholder="Enter your friend usercode"
+                className="bg-[#0a0a0a] w-80 py-2 px-2 rounded-xl text-[#4F47EA]"
+                 value={coustumerId} type="text" onChange={(e) => setcoustumerId(e.target.value)}/>
+                <button
+                 className="text-[#0a0a0a] border border-[#0a0a0a] px-2 py-1 rounded"
+                 type="submit"><span className="text-[#4f47ea] font-black">+</span> Add friend</button>
+                 
             </form>
+           {/* <p className="text-xs text-[#4f47ea] font-mono font-bold p-4">*Note:- You can add your friend by using user code</p>  */}
         </div>
     )
 }

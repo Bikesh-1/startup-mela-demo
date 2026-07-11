@@ -102,8 +102,13 @@ export async function GET(res: Response) {
                 senderId: currentUser?.id
             },
             include: {
-                receiver: true
-            }
+                receiver: {
+                    include:{
+                        userdetails:true
+                        
+                    }
+                }
+            },
         })
 
         return NextResponse.json(
@@ -114,7 +119,7 @@ export async function GET(res: Response) {
         return NextResponse.json({ error: "Something wnet Wrong" }, { status: 500 })
     }
 }
-// optional features
+
 export async function DELETE(req: Request) {
     try {
         const session = await getServerSession(authOptions);
