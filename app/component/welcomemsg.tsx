@@ -35,9 +35,9 @@ export default function Welcomemsg() {
     return (
         <div className="font-mono">
             {userdetails ? (
-                <div className="rounded-lg border border-gray-800 bg-black p-4 ">
+                <div className="w-80 rounded-lg border border-gray-800 bg-black p-4 ">
                     <h2 className="text-xl font-bold text-white">
-                        Welcome, <span className="text-[#4F47EA]">{userdetails.name}</span>
+                        Welcome, <span className="text-[#dadada]">{userdetails.name}</span>
                     </h2>
 
                     <p className="text-sm text-gray-400">

@@ -33,7 +33,7 @@ export default function Addfriend(){
             <form className="font-mono flex items-center justify-center gap-4" onSubmit={handleaddingFriend}>
                 <input
                 placeholder="Enter your friend usercode"
-                className="bg-[#0a0a0a] w-80 py-2 px-2 rounded-xl text-[#4F47EA]"
+                className="bg-[#0a0a0a] w-80 py-2 px-2 rounded-xl text-[#dadada]"
                  value={coustumerId} type="text" onChange={(e) => setcoustumerId(e.target.value)}/>
                 <button
                  className="text-[#0a0a0a] border border-[#0a0a0a] px-2 py-1 rounded"

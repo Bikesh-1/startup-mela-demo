@@ -1,13 +1,12 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { error } from "next/dist/build/output/log";
 import { NextResponse } from "next/server";
-import { use } from "react";
 
 export async function POST(req: Request) {
     try {
         const { groupCode, amount, month, year } = await req.json();
+        
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(

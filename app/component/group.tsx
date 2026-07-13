@@ -11,10 +11,62 @@ type Group = {
     id: string,
     groupmember: string[]
 }
+type FriendList = {
+    receiver: {
+        coustumerId: string;
+        userdetails: {
+            name: string;
+        };
+    };
+};
 
 export default function Group() {
     const [groups, setGroups] = useState<Group[]>([]);
+    const [openPopup, setOpenPopup] = useState(false);
+    const [selectedGroup, setSelectedGroup] = useState<any>(null);
+    const [FriendList, setFriendList] = useState<FriendList[]>([]);
+    useEffect(() => {
+        const getFriendList = async () => {
+            try {
+                const res = await fetch("/api/addfriends");
 
+                const data = await res.json();
+                if (res.ok) {
+                    setFriendList(data.friendlist)
+                } else {
+                    console.log(data.message)
+                }
+            } catch (error) {
+                console.log(error)
+            }
+        };
+        getFriendList()
+    }, [])
+    const handleAddMember = async (friendCode: string) => {
+        const body = {
+            groupCode: selectedGroup.groupCode,
+            coustumerId: friendCode,
+        };
+
+        console.log(body);
+        const res = await fetch("/api/group/addmember", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert(data.message);
+        } else {
+            alert(data.error);
+        }
+
+        setOpenPopup(false);
+    };
     useEffect(() => {
         const getGroup = async () => {
             try {
@@ -31,7 +83,7 @@ export default function Group() {
     }, [])
 
     return (
-        <div className="w-full flex flex-wrap gap-6 font-mono">
+        <div className="w-full grid grid-cols-2 gap-6 font-mono">
             {groups.map((group) => (
                 <div
                     key={group.id}
@@ -72,12 +124,55 @@ export default function Group() {
                         </div>
                     </div>
 
-                    {/* Button */}
                     <button className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818]">
                         Open Group
                     </button>
+                    <button className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818] "
+                        onClick={() => {
+                            setSelectedGroup(group);
+                            setOpenPopup(true);
+                        }}
+                    >Add Friend</button>
                 </div>
             ))}
+            {openPopup && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
+                    <div className="bg-[#0a0a0a] p-6 rounded-lg w-112.5 text-[#dadada]">
+                        <h2 className="text-2xl font-bold mb-5">
+                            Friend List
+                        </h2>
+                        {FriendList.map((friend) => (
+                            <div
+                                key={friend.receiver.coustumerId}
+                                className="flex justify-between items-center border-b py-3"
+                            >
+                                <div>
+                                    <h3 className="uppercase">Name: {friend.receiver.userdetails.name}</h3>
+                                    <p className="uppercase">User code: {friend.receiver.coustumerId}</p>
+                                </div>
+
+                                <button
+                                    className="bg-[#dadada] text-[#0a0a0a] px-2 py-1 rounded"
+                                    onClick={() =>
+                                        handleAddMember(friend.receiver.coustumerId)
+                                    }
+                                >
+                                    Add member
+                                </button>
+                            </div>
+                        ))}
+
+                        <button
+                            className="mt-5 bg-red-500 text-white px-2 py-1 rounded"
+                            onClick={() => setOpenPopup(false)}
+                        >
+                            Close
+                        </button>
+
+                    </div>
+
+                </div>
+            )}
         </div>
     )
 }

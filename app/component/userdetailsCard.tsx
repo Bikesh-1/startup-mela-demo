@@ -33,8 +33,8 @@ export default function Userdetails() {
     getUserdetails();
   }, [])
   return (
-    <div className="flex items-center justify-center">
-      <div className="w-96 rounded-3xl border border-[#202020] bg-[#0a0a0a] p-6 font-mono shadow-[0_0_40px_rgba(79,71,234,0.12)] transition-all duration-300 hover:border-[#4F47EA]/50">
+    <div >
+      <div className="w-80 rounded-2xl border border-[#202020] bg-[#0a0a0a] p-6 font-mono shadow-[0_0_40px_rgba(79,71,234,0.12)] transition-all duration-300 hover:border-[#4F47EA]/50">
 
         <div className="flex items-center justify-between">
           <div>
@@ -52,7 +52,7 @@ export default function Userdetails() {
               <p className="text-xs uppercase tracking-widest text-gray-400">
                 Customer ID
               </p>
-              <p className="mt-1 text-lg font-black text-[#4F47EA]">
+              <p className="mt-1 text-lg font-black text-[#dadada]">
                 {userdetails.user.coustumerId}
               </p>
             </div>

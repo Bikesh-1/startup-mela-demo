@@ -44,8 +44,8 @@ export async function POST(req: Request) {
             }
         })
         return NextResponse.json(
-            {createGroup , message:"Congratulation, you sucessfully created your group"},
-            {status:200}
+            { createGroup, message: "Congratulation, you sucessfully created your group" },
+            { status: 200 }
         )
 
     } catch (error) {
@@ -57,42 +57,53 @@ export async function POST(req: Request) {
     }
 }
 
-export async function GET(req:Request) {
-    try{
+export async function GET(req: Request) {
+    try {
         const session = await getServerSession(authOptions);
-        if(!session?.user?.email){
+        if (!session?.user?.email) {
             return NextResponse.json(
-                {error:"You are not authorize to access this page"},
-                {status:401}
+                { error: "You are not authorize to access this page" },
+                { status: 401 }
             )
         }
         const email = session.user.email as string;
         const userExist = await prisma.user.findUnique({
-            where:{
+            where: {
                 email,
             }
         })
-        if(!userExist){
+        if (!userExist) {
             return NextResponse.json(
-                {error:"User not found"},
-                {status:404}
+                { error: "User not found" },
+                { status: 404 }
             )
         }
 
         const groupDetails = await prisma.group.findMany({
-            where:{
-                createdId:userExist.id
+            where: {
+                OR: [
+                    {
+                        createdId: userExist.id,
+                    },
+                    {
+                        groupmember: {
+                            some: {
+                                userId: userExist.id,
+                            },
+                        },
+                    },
+                ],
             },
-            include:{
-                groupmember:true,
-                contribution:true,
-                message:true,
-                createdBy:true
-            }
+            include: {
+                groupmember: true,
+                contribution: true,
+                message: true,
+                createdBy: true,
+            },
         });
-        return NextResponse.json({groupDetails,message:"Group Not Found"},{status:200})
-    }catch(error){
+        return NextResponse.json({ groupDetails, message: "Group Not Found" }, { status: 200 })
+    } catch (error) {
         console.log(error);
-        return NextResponse.json({error:"Something went wrong"},{status:500})
+        return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
     }
 }

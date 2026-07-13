@@ -14,26 +14,40 @@ export default async function Dashboard() {
         redirect("/signin")
     }
     return (
-        <div className="min-h-screen bg-[#dadada]">
-            <LoginNavbar />
-            <div className="flex items-start justify-between px-8 py-6">
-                <Welcomemsg />
-                <Addfriend />
-                <div className="flex items-center justify-center flex-col gap-4">
-                    <Userdetails />
-                    <FriendList />
-                    
-                </div>
-                
-            </div>
-            <div className="flex gap-6 px-8 pb-8">
-                {/* <div className="w-80">
-                    <FriendList />
-                </div> */}
-                <div className="flex-1">
-                    <Group/>
-                </div>
-            </div>
-        </div>
+<div className="min-h-screen bg-[#f5f5f5]">
+  <LoginNavbar />
+
+  <main className="max-w-7xl mx-auto px-8 py-8">
+
+    {/* Top Section */}
+    <div className="flex justify-between items-start mb-10">
+
+      <Welcomemsg />
+
+      <Addfriend />
+
+    </div>
+
+    {/* Main Dashboard */}
+    <div className="grid grid-cols-12 gap-8">
+
+      {/* Groups */}
+      <section className="col-span-8">
+
+        <h2 className="text-3xl font-bold mb-6">
+          Your Groups
+        </h2>
+        <Group />
+      </section>
+      <aside className="col-span-4 space-y-6 sticky top-24">
+        <Userdetails />
+        <FriendList />
+
+      </aside>
+
+    </div>
+
+  </main>
+</div>
     )
 }
