@@ -15,6 +15,7 @@ export default function LoginNavbar(){
             </div>
             <div className="flex items-center justify-center gap-4">
                 <button  className="text-black px-2 py-1 rounded border border-[#0a0a0a]">+ Add your details</button>
+                <button className=" text-white bg-[#4F47EA] px-2 py-1 rounded cursor-pointer">+ Create Group</button>
                 <button onClick={() => signOut({callbackUrl:"/signin"})}  className=" text-white bg-[#0a0a0a] px-2 py-1 rounded cursor-pointer">Logout</button>
             </div>
         </div>
