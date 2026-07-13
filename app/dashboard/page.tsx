@@ -6,6 +6,7 @@ import Userdetails from "../component/userdetailsCard";
 import Addfriend from "../component/addfriend";
 import FriendList from "../component/friendlist";
 import Welcomemsg from "../component/welcomemsg";
+import Group from "../component/group";
 
 export default async function Dashboard() {
     const session = await getServerSession(authOptions);
@@ -21,6 +22,7 @@ export default async function Dashboard() {
                 <div className="flex items-center justify-center flex-col gap-4">
                     <Userdetails />
                     <FriendList />
+                    
                 </div>
                 
             </div>
@@ -29,7 +31,7 @@ export default async function Dashboard() {
                     <FriendList />
                 </div> */}
                 <div className="flex-1">
-                    
+                    <Group/>
                 </div>
             </div>
         </div>

@@ -56,3 +56,43 @@ export async function POST(req: Request) {
         )
     }
 }
+
+export async function GET(req:Request) {
+    try{
+        const session = await getServerSession(authOptions);
+        if(!session?.user?.email){
+            return NextResponse.json(
+                {error:"You are not authorize to access this page"},
+                {status:401}
+            )
+        }
+        const email = session.user.email as string;
+        const userExist = await prisma.user.findUnique({
+            where:{
+                email,
+            }
+        })
+        if(!userExist){
+            return NextResponse.json(
+                {error:"User not found"},
+                {status:404}
+            )
+        }
+
+        const groupDetails = await prisma.group.findMany({
+            where:{
+                createdId:userExist.id
+            },
+            include:{
+                groupmember:true,
+                contribution:true,
+                message:true,
+                createdBy:true
+            }
+        });
+        return NextResponse.json({groupDetails,message:"Group Not Found"},{status:200})
+    }catch(error){
+        console.log(error);
+        return NextResponse.json({error:"Something went wrong"},{status:500})
+    }
+}
