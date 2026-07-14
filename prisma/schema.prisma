@@ -70,7 +70,6 @@ model Groupmember {
   user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   group    Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
   joinedAt DateTime @default(now())
-
   @@unique([userId, groupId])
 }
 

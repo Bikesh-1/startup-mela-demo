@@ -1,4 +1,5 @@
 "use client"
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type Group = {
@@ -25,6 +26,7 @@ export default function Group() {
     const [openPopup, setOpenPopup] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<any>(null);
     const [FriendList, setFriendList] = useState<FriendList[]>([]);
+    const router = useRouter();
     useEffect(() => {
         const getFriendList = async () => {
             try {
@@ -42,6 +44,7 @@ export default function Group() {
         };
         getFriendList()
     }, [])
+
     const handleAddMember = async (friendCode: string) => {
         const body = {
             groupCode: selectedGroup.groupCode,
@@ -67,6 +70,7 @@ export default function Group() {
 
         setOpenPopup(false);
     };
+    
     useEffect(() => {
         const getGroup = async () => {
             try {
@@ -124,7 +128,9 @@ export default function Group() {
                         </div>
                     </div>
 
-                    <button className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818]">
+                    <button 
+                    onClick={()=> router.push(`/group/${group.groupCode}`)}
+                    className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818]">
                         Open Group
                     </button>
                     <button className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818] "

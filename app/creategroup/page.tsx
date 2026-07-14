@@ -6,10 +6,11 @@ import LoginNavbar from "../component/loginNavbar";
 export default function Creategroup() {
     const [groupName, setGroupName] = useState("");
     const [description, setDescription] = useState("");
-    const [monthlyContribution, setMonthlyContribution] = useState<number>(0);
+    const [monthlyContribution, setMonthlyContribution] = useState<number>();
     const [dueDate, setDuedate] = useState("");
-    const [totalAmount, setTotalamount] = useState<number>(0);
+    const [totalAmount, setTotalamount] = useState<number>();
     const router = useRouter();
+    
     const handlegroupCreation = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
