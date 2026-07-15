@@ -16,8 +16,8 @@ export async function POST(req: Request) {
 
         if (userExist) {
             return NextResponse.json(
-                { message: "User already exist try to login" },
-                { status: 404 }
+                { message: "An account with this email already exists. Please sign in." },
+                { status: 409 }
             );
         }
 
@@ -31,10 +31,11 @@ export async function POST(req: Request) {
             },
         });
         return NextResponse.json(
-            { email: user.email, message: "your account successfully created" },
-            { status: 200 }
+            { email: user.email, message: "Account created successfully." },
+            { status: 201 }
         );
     } catch {
-        return NextResponse.json({ error: "Something went Wrong" }, { status: 500 })
+        return NextResponse.json({ error: "An unexpected error occurred." },
+            { status: 500 })
     }
 }

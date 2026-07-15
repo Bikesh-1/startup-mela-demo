@@ -26,6 +26,7 @@ export default function Group() {
     const [openPopup, setOpenPopup] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<any>(null);
     const [FriendList, setFriendList] = useState<FriendList[]>([]);
+
     const router = useRouter();
     useEffect(() => {
         const getFriendList = async () => {
@@ -61,13 +62,11 @@ export default function Group() {
         });
 
         const data = await res.json();
-
         if (res.ok) {
             alert(data.message);
         } else {
             alert(data.error);
         }
-
         setOpenPopup(false);
     };
     
@@ -85,6 +84,8 @@ export default function Group() {
         };
         getGroup();
     }, [])
+
+    
 
     return (
         <div className="w-full grid grid-cols-2 gap-6 font-mono">
@@ -148,6 +149,7 @@ export default function Group() {
                             Friend List
                         </h2>
                         {FriendList.map((friend) => (
+
                             <div
                                 key={friend.receiver.coustumerId}
                                 className="flex justify-between items-center border-b py-3"
@@ -179,6 +181,7 @@ export default function Group() {
 
                 </div>
             )}
+           
         </div>
     )
 }

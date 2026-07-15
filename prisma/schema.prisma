@@ -79,9 +79,8 @@ model Contribution {
   groupId String
   user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   group   Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
-  amount  String
+  amount  Int
   month   String
-  year    String
   status  status   @default(PENDING)
   paidAt  DateTime @default(now())
 }

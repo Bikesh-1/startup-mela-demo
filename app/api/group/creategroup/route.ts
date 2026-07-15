@@ -9,8 +9,8 @@ export async function POST(req: Request) {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { error: "you are not authorize to access this page" },
-                { status: 404 }
+                { error: "Unauthorized. Please sign in to continue." },
+        { status: 401 }
             )
         }
         const email = session.user.email;
@@ -21,8 +21,8 @@ export async function POST(req: Request) {
         })
         if (!userExist) {
             return NextResponse.json(
-                { error: "you don't create your account first create your account first" },
-                { status: 404 }
+                { error: "User account not found." },
+        { status: 404 }
             )
         }
         const groupCode = "SWG" + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -44,15 +44,14 @@ export async function POST(req: Request) {
             }
         })
         return NextResponse.json(
-            { createGroup, message: "Congratulation, you sucessfully created your group" },
-            { status: 200 }
+            { createGroup,  message: "Group created successfully.", },
+            { status: 201 }
         )
 
     } catch (error) {
-        console.log(error)
         return NextResponse.json(
-            { error: "Something went wrong" },
-            { status: 404 }
+            { error: "An unexpected error occurred while creating the group." },
+            { status: 500 }
         )
     }
 }
@@ -62,8 +61,8 @@ export async function GET(req: Request) {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
-                { error: "You are not authorize to access this page" },
-                { status: 401 }
+                { error: "Unauthorized. Please sign in to continue." },
+        { status: 401 }
             )
         }
         const email = session.user.email as string;
@@ -74,8 +73,8 @@ export async function GET(req: Request) {
         })
         if (!userExist) {
             return NextResponse.json(
-                { error: "User not found" },
-                { status: 404 }
+                { error: "User account not found." },
+        { status: 404 }
             )
         }
 
@@ -101,9 +100,19 @@ export async function GET(req: Request) {
                 createdBy: true,
             },
         });
-        return NextResponse.json({ groupDetails, message: "Group Not Found" }, { status: 200 })
+        if (groupDetails.length === 0) {
+    return NextResponse.json(
+        {
+            message: "No groups found.",
+            groupDetails: [],
+        },
+        {
+            status: 200,
+        }
+    );
+}
+        return NextResponse.json({ groupDetails,  message: "Groups fetched successfully.", }, { status: 200 })
     } catch (error) {
-        console.log(error);
-        return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+        return NextResponse.json({ error: "An unexpected error occurred while fetching groups." }, { status: 500 })
     }
 }

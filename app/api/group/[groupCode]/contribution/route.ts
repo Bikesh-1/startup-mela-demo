@@ -6,12 +6,12 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request, { params }: { params: Promise<{ groupCode: string }> }) {
     try {
         const { groupCode } = await params;
-        const { amount, month, year } = await req.json();
+        const { amount, month } = await req.json();
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { error: "you are not authorize to access this page" },
-                { status: 400 }
+                { error: "Unauthorized. Please sign in to continue." },
+                { status: 401 }
             )
         }
         const user = await prisma.user.findUnique({
@@ -21,7 +21,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ groupCo
         })
         if (!user) {
             return NextResponse.json(
-                { error: "you don't create your account" },
+                { error: "User account not found." },
                 { status: 404 }
             )
         }
@@ -44,8 +44,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ groupCo
         });
         if (!group) {
             return NextResponse.json(
-                { error: "User not find in the group" },
-                { status: 400 }
+                { error: "Group not found or you are not a member of this group." },
+                { status: 404 }
             )
         }
         const existingContribution = await prisma.contribution.findFirst({
@@ -53,15 +53,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ groupCo
                 userId: user.id,
                 groupId: group.id,
                 month,
-                year,
             },
         });
         if (existingContribution) {
             return NextResponse.json(
-                { error: "You have already contributed for this month." },
-                { status: 400 }
+                { error: "You have already submitted your contribution for this month." },
+                { status: 409 }
             );
         }
+
         await prisma.contribution.create({
             data: {
                 userId: user.id,
@@ -70,17 +70,25 @@ export async function POST(req: Request, { params }: { params: Promise<{ groupCo
                 // groupCode: group.groupCode,
                 amount: amount,
                 month: month,
-                year: year
             }
         })
+        await prisma.group.update({
+            where: {
+                id: group.id,
+            },
+            data: {
+                totalAmount: {
+                    increment: Number(amount),
+                },
+            },
+        });
         return NextResponse.json(
-            { message: "you succesfully contribut in group" },
-            { status: 200 }
+            { message: "Contribution submitted successfully." },
+            { status: 201 }
         )
     } catch (error) {
-        console.log(error)
         return NextResponse.json(
-            { error: "Something went wrong" },
+            { error: "An unexpected error occurred." },
             { status: 500 }
         )
     }
@@ -92,11 +100,10 @@ export async function GET(req: Request, { params }: { params: Promise<{ groupCod
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { error: "You are not authorize to acess this page" },
-                { status: 404 }
+                { error: "Unauthorized. Please sign in to continue." },
+                { status: 401 }
             )
         }
-
         const contributionDetails = await prisma.contribution.findMany({
             where: {
                 group: {
@@ -112,13 +119,12 @@ export async function GET(req: Request, { params }: { params: Promise<{ groupCod
             }
         });
         return NextResponse.json(
-            { contributionDetails, message: "user contribution details found" },
+            { contributionDetails, message: "Contribution details retrieved successfully." },
             { status: 200 }
         )
     } catch (error) {
-        console.log(error)
         return NextResponse.json(
-            { error: "Internal server Error" },
+            { error: "An unexpected error occurred." },
             { status: 500 }
         )
     }

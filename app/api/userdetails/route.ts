@@ -9,7 +9,7 @@ export async function POST(req: Request) {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
-                { error: "You are not authorize to access this page" },
+                { error: "Unauthorized. Please sign in to continue." },
                 { status: 401 }
             )
         }
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
         })
         if (!userExist) {
             return NextResponse.json(
-                { error: "User Not found" },
+                { error: "User account not found." },
                 { status: 404 }
             )
         }
@@ -38,7 +38,7 @@ export async function POST(req: Request) {
         });
         if (existingDetails) {
             return NextResponse.json(
-                { error: "User Details Already Exist" },
+                { error: "User profile already exists." },
                 { status: 409 }
             )
         }
@@ -57,14 +57,14 @@ export async function POST(req: Request) {
         })
 
         return NextResponse.json(
-            { userdetails, message: "User Details Added Successfully" },
-            { status: 200 }
+            { userdetails, message: "Profile details added successfully." },
+            { status: 201 }
         )
 
     }
     catch (error) {
         console.log(error);
-        return NextResponse.json({ error: "Something wnet Wrong" }, { status: 500 })
+        return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 })
     }
 }
 
@@ -74,7 +74,7 @@ export async function GET(req: Request) {
         const session = await getServerSession(authOptions);
         if (!session?.user?.email) {
             return NextResponse.json(
-                { error: "You are not authorize to access this page" },
+                { error: "Unauthorized. Please sign in to continue." },
                 { status: 401 }
             )
         }
@@ -86,7 +86,7 @@ export async function GET(req: Request) {
         })
         if (!userExist) {
             return NextResponse.json(
-                { error: "User Not found" },
+                { error: "User account not found." },
                 { status: 404 }
             )
         }
@@ -113,11 +113,10 @@ export async function GET(req: Request) {
             },
         });
 
-        return NextResponse.json({ userDetails, message: "User details fetched successfully" }, { status: 200 })
+        return NextResponse.json({ userDetails, message: "Profile details retrieved successfully." }, { status: 200 })
 
     }
-    catch (error) {
-        console.log(error);
-        return NextResponse.json({ error: "Something wnet Wrong" }, { status: 500 })
+    catch {
+        return NextResponse.json({ error: "An unexpected error occurred." }, { status: 500 })
     }
 }

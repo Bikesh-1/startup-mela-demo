@@ -10,8 +10,8 @@ export async function POST(req: Request) {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { message: "You are not authorize to this page" },
-                { status: 402 }
+                { error: "Unauthorized. Please sign in to continue." },
+                { status: 401 }
             )
         }
         const email = session.user.email as string;
@@ -22,8 +22,8 @@ export async function POST(req: Request) {
         })
         if (!userExist) {
             return NextResponse.json(
-                { message: "you have not create your account" },
-                { status: 402 }
+                { error: "User account not found." },
+                { status: 404 }
             )
         }
         const friendUser = await prisma.user.findFirst({
@@ -33,15 +33,15 @@ export async function POST(req: Request) {
         })
         if (!friendUser) {
             return NextResponse.json(
-                { error: "Your friend is not found recheck your code " },
-                { status: 401 }
+                { error: "No user found with the provided customer ID." },
+                { status: 404 }
             )
         }
 
         if (userExist.id == friendUser.id) {
             return NextResponse.json(
-                { error: "you can't add yourself" },
-                { status: 401 }
+                { error: "You cannot add yourself as a friend." },
+                { status: 400 }
             )
         }
 
@@ -54,8 +54,8 @@ export async function POST(req: Request) {
 
         if (alreadyFriend) {
             return NextResponse.json(
-                { error: "user already exsits in your friendlist" },
-                { status: 401 }
+                { error: "This user is already in your friend list." },
+                { status: 409 }
             )
         }
 
@@ -74,11 +74,14 @@ export async function POST(req: Request) {
 
         return NextResponse.json(
 
-            { addfriend: friendUser.email, message: "Friend added successfully" },
+            { addfriend: friendUser.email, message: "Friend added successfully." },
             { status: 200 }
         )
     } catch (error) {
-        return NextResponse.json({ error: "Something wnet Wrong" }, { status: 500 })
+        return NextResponse.json(
+            { error: "An unexpected error occurred. Please try again later." },
+            { status: 500 }
+        )
     }
 
 }
@@ -88,8 +91,8 @@ export async function GET(res: Response) {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { message: "You are not authorize to this page" },
-                { status: 402 }
+                { error: "Unauthorized. Please sign in to continue." },
+                { status: 401 }
             )
         }
         const currentUser = await prisma.user.findUnique({
@@ -97,26 +100,39 @@ export async function GET(res: Response) {
                 email: session.user.email!
             }
         })
+        if (!currentUser) {
+            return NextResponse.json(
+                { error: "User account not found." },
+                { status: 404 }
+            );
+        }
         const friendlist = await prisma.friend.findMany({
             where: {
                 senderId: currentUser?.id
             },
             include: {
                 receiver: {
-                    include:{
-                        userdetails:true
-                        
+                    include: {
+                        userdetails: true
+
                     }
                 }
             },
         })
 
         return NextResponse.json(
-            { friendlist }
-        )
+            {
+                message: "Friend list fetched successfully.",
+                friendlist,
+            },
+            { status: 200 }
+        );
 
     } catch (error) {
-        return NextResponse.json({ error: "Something wnet Wrong" }, { status: 500 })
+        return NextResponse.json(
+            { error: "Failed to fetch friend list." },
+            { status: 500 }
+        );
     }
 }
 
@@ -125,9 +141,9 @@ export async function DELETE(req: Request) {
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { message: "User Not found" },
-                { status: 404 }
-            )
+                { error: "Unauthorized. Please sign in to continue." },
+                { status: 401 }
+            );
         }
 
         const { coustumerId } = await req.json();
@@ -140,9 +156,9 @@ export async function DELETE(req: Request) {
 
         if (!currentUser) {
             return NextResponse.json(
-                { message: "User Not found" },
+                { error: "User account not found." },
                 { status: 404 }
-            )
+            );
         }
 
         const friendUser = await prisma.user.findUnique({
@@ -153,12 +169,12 @@ export async function DELETE(req: Request) {
 
         if (!friendUser) {
             return NextResponse.json(
-                { message: "friend is not found" },
+                { error: "Friend not found." },
                 { status: 404 }
-            )
+            );
         }
 
-        await prisma.friend.deleteMany({
+        const deleted = await prisma.friend.deleteMany({
             where: {
                 OR: [
                     {
@@ -172,13 +188,24 @@ export async function DELETE(req: Request) {
                 ]
             }
         });
+        if (deleted.count === 0) {
+            return NextResponse.json(
+                { error: "This user is not in your friend list." },
+                { status: 404 }
+            );
+        }
 
         return NextResponse.json(
-            {message:"User delete successfully"},
-            {status:400}
-        )
+            {
+                message: "Friend removed successfully.",
+            },
+            { status: 200 }
+        );
     }
     catch (error) {
-        return NextResponse.json({ error: "something went wrong" }, { status: 500 })
+        return NextResponse.json(
+            { error: "Failed to remove friend." },
+            { status: 500 }
+        );
     }
 }

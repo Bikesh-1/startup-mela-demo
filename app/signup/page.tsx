@@ -2,12 +2,14 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import Navbar from "../component/navbar";
+import { toast } from "sonner";
 
 export default function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
     const router = useRouter()
+
+    //This function handle the registration
     const handleRegistration = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -23,75 +25,41 @@ export default function Signup() {
             });
             const data = await res.json();
             if (res.ok) {
-                setMessage(data.message);
+                toast.success(data.message);
                 router.push("/dashboard")
             } else {
-                setMessage(data.message || data.error)
+                toast.error(data.message)
             }
-        } catch (error) {
-            console.log(error);
-            setMessage("Something went wrong")
-
+        } catch {
+            toast.error("An unexpected error occurred. Please try again later.")
         }
     }
-
     return (
-        <div className="min-h-screen w-full relative">
-            {/* Dashed Top Fade Grid */}
+        <div
+            className="min-h-screen w-full relative">
             <div
                 className="absolute inset-0 z-0"
                 style={{
-                    backgroundImage: `
-        linear-gradient(to right, #e7e5e4 1px, transparent 1px),
-        linear-gradient(to bottom, #e7e5e4 1px, transparent 1px)
-      `,
+                    backgroundImage: `linear-gradient(to right, #e7e5e4 1px, transparent 1px),linear-gradient(to bottom, #e7e5e4 1px, transparent 1px)`,
                     backgroundSize: "20px 20px",
                     backgroundPosition: "0 0, 0 0",
-                    maskImage: `
-        repeating-linear-gradient(
-              to right,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            repeating-linear-gradient(
-              to bottom,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)
-      `,
-                    WebkitMaskImage: `
- repeating-linear-gradient(
-              to right,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            repeating-linear-gradient(
-              to bottom,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)
-      `,
+                    maskImage: `repeating-linear-gradient(to right,black 0px,black 3px,transparent 3px,transparent 8px),repeating-linear-gradient(to bottom,black 0px,black 3px,transparent 3px,transparent 8px),radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)`,
+                    WebkitMaskImage: `repeating-linear-gradient(to right,black 0px,black 3px,transparent 3px,transparent 8px),repeating-linear-gradient(to bottom,black 0px,black 3px,transparent 3px,transparent 8px),radial-gradient(ellipse 70% 60% at 50% 0%, #000 60%, transparent 100%)`,
                     maskComposite: "intersect",
                     WebkitMaskComposite: "source-in",
                 }}
             />
-            <div className="flex items-center justify-center w-full h-screen relative z-10">
+            <div
+                className="flex items-center justify-center w-full h-screen relative z-10">
                 <Navbar />
-                <div className="bg-[#0a0a0a] w-98 h-2/3 font-mono text-white p-4 rounded-2xl flex items-center justify-center flex-col">
-
-                    <h1 className="text-xl font-black">Create your account</h1>
-
-                    <p className="text-xs text-stone-400 mt-2 mb-6 text-center w-80">
+                <div
+                    className="bg-[#0a0a0a] w-98 h-2/3 font-mono text-white p-4 rounded-2xl flex items-center justify-center flex-col">
+                    <h1
+                        className="text-xl font-black">
+                        Create your account
+                    </h1>
+                    <p
+                        className="text-xs text-stone-400 mt-2 mb-6 text-center w-80">
                         Sign up to start saving smarter with your friends and manage your shared contributions effortlessly.
                     </p>
 
@@ -136,18 +104,10 @@ export default function Signup() {
                             Create account
                         </button>
                     </form>
-
-                    {message && (
-                        <p className="text-xs mt-4 text-center w-80">
-                            {message}
-                        </p>
-                    )}
-
                     <p className="text-[11px] text-stone-500 mt-6 text-center w-80 leading-5">
                         By creating an account, you agree to our Terms of Service and Privacy
                         Policy.
                     </p>
-
                     <p className="text-xs text-stone-400 mt-4">
                         Already have an account?{" "}
                         <span

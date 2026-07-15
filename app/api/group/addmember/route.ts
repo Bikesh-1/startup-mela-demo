@@ -1,61 +1,61 @@
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { error } from "next/dist/build/output/log";
 import { NextResponse } from "next/server";
 
-export async function POST(req:Response){
-    try{
-        const {groupCode,coustumerId} = await req.json();
+export async function POST(req: Response) {
+    try {
+        const { groupCode, coustumerId } = await req.json();
         const session = await getServerSession(authOptions);
-        if(!session){
+        if (!session) {
             return NextResponse.json(
-                {error:"You are not authorize to this page"},
-                {status:400}
+                { error: "Unauthorized. Please sign in to continue." },
+                { status: 401 }
             )
         }
         const email = await session.user.email;
         const adminUser = await prisma.user.findUnique({
-            where:{
+            where: {
                 email
             }
         })
 
-        if(!adminUser){
+        if (!adminUser) {
             return NextResponse.json(
-                {error:"you don't create your account"},
-                {status:404}
+                { error: "User account not found." },
+                { status: 404 }
             )
         }
 
         const friend = await prisma.user.findFirst({
-            where:{
+            where: {
                 coustumerId
             }
         })
-        if(!friend){
+        if (!friend) {
             return NextResponse.json(
-                {error:"your friend is not found"},
-                {status:400}
+                { error: "No user found with the provided customer ID." },
+                { status: 404 }
             )
         }
-        if(adminUser.id == friend.id){
+        if (adminUser.id == friend.id) {
             return NextResponse.json(
-                {message:"You cannot add yourself"}
+                { error: "You cannot add yourself to the group." },
+                { status: 400 }
             )
         }
 
         const group = await prisma.group.findFirst({
-            where:{
+            where: {
                 groupCode,
-                createdId:adminUser.id
+                createdId: adminUser.id
             }
         })
 
-        if(!group){
+        if (!group) {
             return NextResponse.json(
-                {error:"group not found try again"},
-                {status:400}
+                { error: "Group not found or you do not have permission to manage this group." },
+                { status: 404 }
             )
         }
 
@@ -67,32 +67,32 @@ export async function POST(req:Response){
         })
 
         if (existingMember) {
-    return NextResponse.json(
-        { error: "User already exists in this group" },
-        { status: 400 }
-    );
-}
+            return NextResponse.json(
+                { error: "This user is already a member of the group." },
+                { status: 409 }
+            );
+        }
 
         const addMember = await prisma.groupmember.create({
-            data:{
-                userId:friend.id,
-                groupId:group.id,
+            data: {
+                userId: friend.id,
+                groupId: group.id,
                 // addMember:friend.id
-                
+
             }
         })
 
         return NextResponse.json(
-            {addMember, message:`You have successfully added your friend to the group "${group.groupName}"`},
-            {status:200}
+            { addMember, message: `user has been added to You have successfully added your friend to the group "${group.groupName}"` },
+            { status: 201 }
         )
     }
-    catch(error){
+    catch (error) {
         console.log(error)
         return NextResponse.json(
-            {error:"Something went wrong"},
-            {status:404}
+            { error: "An unexpected error occurred while adding the member." },
+            { status: 500 }
         )
     }
-    
+
 }

@@ -3,6 +3,7 @@ import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import React, { useState } from "react";
 import Navbar from "../component/navbar";
+import { toast } from "sonner";
 
 export default function Signin() {
     const [email, setEmail] = useState("");
@@ -20,7 +21,7 @@ export default function Signin() {
             if (result?.error) {
                 console.log("Invalid Email or Password");
             } else {
-                console.log("Login Successful");
+                toast.success("Login Successful");
                 router.push("/dashboard");
             }
         } catch (error) {
