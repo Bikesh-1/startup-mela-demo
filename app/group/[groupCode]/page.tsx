@@ -103,7 +103,7 @@ export default function GroupPage() {
     fetchContribution();
   }, [groupCode])
 
-  if (loading) return <h1>Loading...</h1>;
+  if (loading) return <h1 className="w-auto h-screen bg-[#dadada] flex items-center justify-center font-mono">Loading please wait...</h1>;
   if (!group) return <h1>Group Not Found</h1>;
   return (
     <div className="min-h-screen w-full relative bg-[#dadada] font-mono">

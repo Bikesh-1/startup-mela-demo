@@ -69,7 +69,7 @@ export default function Group() {
         }
         setOpenPopup(false);
     };
-    
+
     useEffect(() => {
         const getGroup = async () => {
             try {
@@ -85,14 +85,14 @@ export default function Group() {
         getGroup();
     }, [])
 
-    
+
 
     return (
-        <div className="w-full grid grid-cols-2 gap-6 font-mono">
+        <div className="w-full grid grid-cols-2 gap-6">
             {groups.map((group) => (
                 <div
                     key={group.id}
-                    className="w-80 rounded-2xl border border-[#1e1e1e] bg-[#0a0a0a] p-6">
+                    className="w-80 rounded-2xl border border-[#1e1e1e] bg-black p-6">
                     <div className="flex items-center justify-between">
                         <h2 className="text-lg font-semibold text-[#dadada]">
                             {group.groupName}
@@ -101,8 +101,8 @@ export default function Group() {
                             Active
                         </span>
                     </div>
-                    <h1 className="text-[#dadada]">Group Code:{group.groupCode}</h1>
-                    <p className="mt-1 text-sm leading-6 text-[#7a7a7a]">
+                    <h1 className="text-[#dadada] text-xs">Group Code:{group.groupCode}</h1>
+                    <p className="mt-1 text-xs leading-6 text-[#7a7a7a]">
                         {group.description}
                     </p>
                     <div className="my-2 h-px bg-[#1c1c1c]" />
@@ -128,18 +128,20 @@ export default function Group() {
                             </span>
                         </div>
                     </div>
-
-                    <button 
-                    onClick={()=> router.push(`/group/${group.groupCode}`)}
-                    className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818]">
-                        Open Group
-                    </button>
-                    <button className="mt-6 w-full rounded-lg border border-[#2a2a2a] bg-[#111111] py-2.5 text-sm text-[#dadada] transition hover:bg-[#181818] "
-                        onClick={() => {
-                            setSelectedGroup(group);
-                            setOpenPopup(true);
-                        }}
-                    >Add Friend</button>
+                    <div className="flex items-center justify-center gap-4">
+                        <button
+                            onClick={() => router.push(`/group/${group.groupCode}`)}
+                            className="mt-6 w-full rounded-lg border px-3 py-2 border-[#dadada] bg-white text-sm text-black font-medium cursor-pointer">
+                            Open Group
+                        </button>
+                        <button className="mt-6 w-full rounded-lg bg-[#4F47EA] py-2 px-3 text-sm text-white font-medium cursor-pointer"
+                            onClick={() => {
+                                setSelectedGroup(group);
+                                setOpenPopup(true);
+                            }}>
+                            Add Friend
+                        </button>
+                    </div>
                 </div>
             ))}
             {openPopup && (
@@ -169,19 +171,15 @@ export default function Group() {
                                 </button>
                             </div>
                         ))}
-
                         <button
                             className="mt-5 bg-red-500 text-white px-2 py-1 rounded"
                             onClick={() => setOpenPopup(false)}
                         >
                             Close
                         </button>
-
                     </div>
-
                 </div>
             )}
-           
         </div>
     )
 }

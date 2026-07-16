@@ -1,10 +1,10 @@
 "use client";
 
 import { signOut } from "next-auth/react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { Plus } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Bell } from 'lucide-react';
 
 type UserDetails = {
   id: string;
@@ -17,7 +17,6 @@ export default function LoginNavbar() {
   const [name, setName] = useState("");
   const [dateOfbirth, setDateOfbirth] = useState("");
   const [mobileNumber, setMobileNumber] = useState("")
-  const router = useRouter();
   const [loading, setLoading] = useState(false);
   useEffect(() => {
     async function fetchUserDetails() {
@@ -31,7 +30,7 @@ export default function LoginNavbar() {
   }, []);
   const handleUserdetails = async (e: React.FormEvent) => {
     e.preventDefault();
-     setLoading(true);
+    setLoading(true);
     try {
       const res = await fetch("/api/userdetails", {
         method: "POST",
@@ -49,44 +48,39 @@ export default function LoginNavbar() {
         setPopup(false)
         toast.success(data.message)
       } else {
-        toast.error(data.message)
+        toast.error(data.error)
       }
-    } catch{
+    } catch {
       toast.error("An unexpected error occurred. Please try again later.")
-    }finally {
-    setLoading(false);
-  }
+    } finally {
+      setLoading(false);
+    }
   }
   return (
-    <div className="w-full p-4 mt-5 h-10 font-mono flex items-center justify-between relative z-10">
-      <div>
-        <Image
-          src="/logo.png"
-          alt="logo"
-          width={150}
-          height={150}
-        />
-      </div>
-
-      <div className="flex items-center gap-4">
+    <div className="w-full p-8 h-10  flex items-center justify-end absolute ">
+      <div className="flex items-center gap-8">
         <button
           onClick={() => (setPopup(true))}
           disabled={!!userDetails}
-          className={`px-2 py-1 rounded border ${userDetails
-              ? "bg-gray-400 text-white cursor-not-allowed"
-              : "border-[#0a0a0a] text-black"
+          className={`px-3 py-2 rounded-lg font-medium text-[15px] border ${userDetails
+            ? "text-black border border-[#dadada] bg-white cursor-not-allowed"
+            : "border-[#0a0a0a] text-black"
             }`}
         >
-          {userDetails ? "Details Added" : "+ Add your details"}
+          {userDetails ? "Details  Added" : "+ Add your details"}
         </button>
 
-        <button className="text-white bg-[#4F47EA] px-2 py-1 rounded">
-          + Create Group
+        <button className="text-white bg-[#4F47EA] px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer flex items-center justify-center gap-2">
+          <Plus size={12} />{" "}Create Group
         </button>
-
+        <button
+          className="text-black border border-[#dadada] bg-white px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
+        >
+          <Bell size={19} />
+        </button>
         <button
           onClick={() => signOut({ callbackUrl: "/signin" })}
-          className="text-white bg-[#0a0a0a] px-2 py-1 rounded"
+          className="text-black border border-[#dadada] bg-white px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
         >
           Logout
         </button>
@@ -146,7 +140,7 @@ export default function LoginNavbar() {
 
               <div className="mt-2 flex gap-3">
                 <button
-                disabled={loading}
+                  disabled={loading}
                   type="submit"
                   className="flex-1 rounded cursor-pointer bg-[#dadada] px-2 py-1  font-semibold text-[#0a0a0a]"
                 >

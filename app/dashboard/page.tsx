@@ -1,53 +1,90 @@
-import { authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
+"use client";
+
 import LoginNavbar from "../component/loginNavbar";
-import Userdetails from "../component/userdetailsCard";
-import Addfriend from "../component/addfriend";
-import FriendList from "../component/friendlist";
-import Welcomemsg from "../component/welcomemsg";
-import Group from "../component/group";
+import {
+  House,
+  Users,
+  Wallet,
+  Activity,
+  UserRound,
+  Settings,
+  Bell,
+} from "lucide-react";
+import { useState } from "react";
+import Home from "../component/home";
+import Sidebarmsg from "../component/sidebarusermsg";
 
-export default async function Dashboard() {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        redirect("/signin")
-    }
-    return (
-<div className="min-h-screen bg-[#f5f5f5]">
-  <LoginNavbar />
 
-  <main className="max-w-7xl mx-auto px-8 py-8">
+const menuItems = [
+  { id: "home", label: "Home", icon: House },
+  { id: "group", label: "Groups", icon: Users },
+  { id: "friend", label: "Friends", icon: Users },
+  { id: "contribution", label: "Contribution", icon: Wallet },
+  { id: "activity", label: "Activity", icon: Activity },
+  { id: "notification", label: "Notifications", icon: Bell },
+  { id: "Profile", label: "Profile", icon: UserRound },
+  { id: "setting", label: "Setting", icon: Settings },
+];
 
-    {/* Top Section */}
-    <div className="flex justify-between items-start mb-10">
+export default function Dashboard() {
+  const [page, setPage] = useState("home");
 
-      <Welcomemsg />
+  return (
+    <div className="min-h-screen bg-[#f5f5f5]">
+      <LoginNavbar />
+      <div className="flex">
+        <div className="bg-black w-64 h-dvh p-2 relative z-10 flex justify-between flex-col">
+          <div className="flex flex-col gap-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
 
-      <Addfriend />
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setPage(item.id)}
+                  className={`cursor-pointer flex items-center gap-3 px-4 py-3 rounded font-medium text-sm transition-all text-left ${
+                    page === item.id
+                      ? "bg-[#4f47ea81] text-white shadow-md"
+                      : "text-[#dadada] hover:bg-zinc-800"
+                  }`}
+                >
+                  <Icon size={18} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+          <Sidebarmsg/>
+        </div>
+        <div className="flex-1 p-8 overflow-y-auto">
+          {page === "home" && <Home />}
+          {page === "group" && (
+            <h1 className="text-3xl font-bold">Group Page</h1>
+          )}
+          {page === "friend" && (
+            <h1 className="text-3xl font-bold">Friend Page</h1>
+          )}
+          {page === "contribution" && (
+            <h1 className="text-3xl font-bold">Contribution Page</h1>
+          )}
 
+          {page === "activity" && (
+            <h1 className="text-3xl font-bold">Activity Page</h1>
+          )}
+
+          {page === "notification" && (
+            <h1 className="text-3xl font-bold">notification Page</h1>
+          )}
+
+          {page === "profile" && (
+            <h1 className="text-3xl font-bold">Friend List Page</h1>
+          )}
+
+          {page === "setting" && (
+            <h1 className="text-3xl font-bold">Setting Page</h1>
+          )}
+        </div>
+      </div>
     </div>
-
-    {/* Main Dashboard */}
-    <div className="grid grid-cols-12 gap-8">
-
-      {/* Groups */}
-      <section className="col-span-8">
-
-        <h2 className="text-3xl font-bold mb-6">
-          Your Groups
-        </h2>
-        <Group />
-      </section>
-      <aside className="col-span-4 space-y-6 sticky top-24">
-        <Userdetails />
-        <FriendList />
-
-      </aside>
-
-    </div>
-
-  </main>
-</div>
-    )
+  );
 }

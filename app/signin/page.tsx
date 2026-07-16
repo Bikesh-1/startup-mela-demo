@@ -9,9 +9,11 @@ export default function Signin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
     const router = useRouter()
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
+        setLoading(true)
         try {
             const result = await signIn("credentials", {
                 email,
@@ -19,7 +21,7 @@ export default function Signin() {
                 redirect: false,
             });
             if (result?.error) {
-                console.log("Invalid Email or Password");
+                toast.error("Invalid Email or Password");
             } else {
                 toast.success("Login Successful");
                 router.push("/dashboard");
@@ -28,16 +30,17 @@ export default function Signin() {
             console.log(error);
             setMessage("Something went wrong")
 
-        }
+        }finally {
+    setLoading(false);
+  }
     }
 
     return (
         <div className="min-h-screen w-full relative">
-            {/* Dashed Top Left Fade Grid */}
             <div
                 className="absolute inset-0 z-0"
                 style={{
-                    backgroundImage: `linear-gradient(to right, #e7e5e4 1px, transparent 1px), linear-gradient(to bottom, #e7e5e4 1px, transparent 1px)`,
+                    backgroundImage: `linear-gradient(to right, #0a0a0a 1px, transparent 1px), linear-gradient(to bottom, #0a0a0a 1px, transparent 1px)`,
                     backgroundSize: "20px 20px",
                     backgroundPosition: "0 0, 0 0",
                     maskImage: `repeating-linear-gradient(to right,black 0px,black 3px,transparent 3px,transparent 8px),
@@ -88,9 +91,11 @@ export default function Signin() {
                         </div>
                         <br />
                         <button
+                            disabled={loading}
                             className="w-80 text-[#0a0a0a] bg-white px-2 py-1 rounded cursor-pointer"
                             type="submit">
-                            Sign in
+                            {loading ? "Please wait..." : "Sign in"}
+                            
                         </button>
                     </form>
                     {message && (

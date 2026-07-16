@@ -77,7 +77,7 @@ export async function POST(req: Request) {
             { addfriend: friendUser.email, message: "Friend added successfully." },
             { status: 200 }
         )
-    } catch (error) {
+    } catch{
         return NextResponse.json(
             { error: "An unexpected error occurred. Please try again later." },
             { status: 500 }
