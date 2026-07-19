@@ -1,37 +1,24 @@
 "use client"
 
-import { useEffect, useState } from "react";
-
-type UserDetails = {
-  name: string;
-  mobileNumber: string;
-  dateOfbirth: string;
-  user: {
-    coustumerId: string;
-  };
-};
+import { useUserDetails } from "@/hooks/useUserDetails";
 
 export default function Userdetails() {
-  const [userdetails, setUserdetails] = useState<UserDetails | null>(null);
 
+  const {
+    data: userdetails,
+    isPending,
+    isError,
+    error
+  } = useUserDetails();
 
-  useEffect(() => {
-    const getUserdetails = async () => {
-      try {
-        const res = await fetch("/api/userdetails");
+  if (isPending) {
+    return <p>Loading...</p>
+  }
 
-        const data = await res.json();
-        if (res.ok) {
-          setUserdetails(data.userDetails)
-        } else {
-          console.log(data.message)
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    };
-    getUserdetails();
-  }, [])
+  if (isError) {
+    return <p>{error.message}</p>
+  }
+
   return (
     <div >
       <div className="w-80 rounded-2xl border border-[#202020] bg-[#0a0a0a] p-6 font-mono shadow-[0_0_40px_rgba(79,71,234,0.12)] transition-all duration-300 hover:border-[#4F47EA]/50">

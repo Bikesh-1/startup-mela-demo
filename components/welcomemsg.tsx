@@ -1,35 +1,26 @@
 "use client"
+import { useUserDetails } from '@/hooks/useUserDetails';
 import { Clipboard } from 'lucide-react';
 import Image from 'next/image';
-import { useEffect, useState } from "react";
-
-type UserDetails = {
-    name: string;
-    user: {
-        coustumerId: string;
-    };
-};
 
 export default function Welcomemsg() {
 
-    const [userdetails, setUserdetails] = useState<UserDetails | null>(null);
-    useEffect(() => {
-        const getUserdetails = async () => {
-            try {
-                const res = await fetch("/api/userdetails");
+    const {
+        data: userdetails,
+        isPending,
+        isError,
+        error
+    } = useUserDetails();
 
-                const data = await res.json();
-                if (res.ok) {
-                    setUserdetails(data.userDetails)
-                } else {
-                    console.log(data.message)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        };
-        getUserdetails();
-    }, [])
+    if (isPending) {
+        return <p>Loading...</p>
+    }
+
+    if (isError) {
+        return <p>{error.message}</p>
+    }
+
+
 
     return (
 
@@ -60,7 +51,7 @@ export default function Welcomemsg() {
                                 }
                                 className="rounded-md p-1 hover:bg-white/10 transition text-white cursor-pointer"
                             >
-                                <Clipboard size={16}/>
+                                <Clipboard size={16} />
                             </button>
                         </div>
                     </div>

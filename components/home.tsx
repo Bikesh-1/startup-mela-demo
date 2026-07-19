@@ -20,7 +20,7 @@ export default function Home() {
                                 Your Groups
                             </h2>
                         </div>
-                        <Group />
+                        {/* <Group /> */}
                     </section>
                     <aside className="col-span-4 space-y-6 sticky top-24">
                         <Userdetails />

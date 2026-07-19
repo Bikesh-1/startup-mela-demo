@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import LoginNavbar from "@/app/component/loginNavbar";
+import LoginNavbar from "@/components/loginNavbar";
 
 type GroupMember = {
   id: string;

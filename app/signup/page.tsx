@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import Navbar from "../component/navbar";
+import Navbar from "../../components/navbar";
 import { toast } from "sonner";
 
 export default function Signup() {

@@ -128,7 +128,7 @@ export async function GET(res: Response) {
             { status: 200 }
         );
 
-    } catch (error) {
+    } catch{
         return NextResponse.json(
             { error: "Failed to fetch friend list." },
             { status: 500 }

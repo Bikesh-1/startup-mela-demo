@@ -1,6 +1,6 @@
 "use client";
 
-import LoginNavbar from "../component/loginNavbar";
+import LoginNavbar from "../../components/loginNavbar";
 import {
   House,
   Users,
@@ -11,8 +11,8 @@ import {
   Bell,
 } from "lucide-react";
 import { useState } from "react";
-import Home from "../component/home";
-import Sidebarmsg from "../component/sidebarusermsg";
+import Home from "../../components/home";
+import Sidebarmsg from "../../components/sidebarusermsg";
 
 
 const menuItems = [

@@ -1,7 +1,7 @@
 "use client"
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-import LoginNavbar from "../component/loginNavbar";
+import LoginNavbar from "../../components/loginNavbar";
 
 export default function Creategroup() {
     const [groupName, setGroupName] = useState("");

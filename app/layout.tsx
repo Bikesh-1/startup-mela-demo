@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import QueryProvider from "@/providers/QueryProvider";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={plusJakartaSans.className}>
+        <QueryProvider>
       {children}
       <Toaster
           position="top-right"
@@ -29,6 +31,7 @@ export default function RootLayout({
           closeButton
           duration={3000}
         />
+        </QueryProvider>
       </body>
       
     </html>

@@ -2,60 +2,53 @@
 
 import { signOut } from "next-auth/react";
 import { Plus } from 'lucide-react';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import { Bell } from 'lucide-react';
+import { useUserDetails } from "@/hooks/useUserDetails";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createUserDetails } from "@/services/user.service";
 
-type UserDetails = {
-  id: string;
-  name: string;
-};
 
 export default function LoginNavbar() {
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+
   const [popup, setPopup] = useState(false);
   const [name, setName] = useState("");
   const [dateOfbirth, setDateOfbirth] = useState("");
   const [mobileNumber, setMobileNumber] = useState("")
-  const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    async function fetchUserDetails() {
-      const res = await fetch("/api/userdetails");
-      const data = await res.json();
+  // important
 
-      setUserDetails(data.userDetails);
-    }
+  const {data : userDetails} = useUserDetails();
 
-    fetchUserDetails();
-  }, []);
-  const handleUserdetails = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    try {
-      const res = await fetch("/api/userdetails", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          name,
-          dateOfbirth,
-          mobileNumber
-        }),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setPopup(false)
-        toast.success(data.message)
-      } else {
-        toast.error(data.error)
-      }
-    } catch {
-      toast.error("An unexpected error occurred. Please try again later.")
-    } finally {
-      setLoading(false);
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createUserDetails,
+
+    onSuccess:(data) =>{
+      toast.success(data.message);
+      setPopup(false);
+
+      queryClient.invalidateQueries({
+        queryKey:["profile"],
+      })
+    },
+
+    onError:(error:Error) =>{
+      toast.error(error.message)
     }
-  }
+  })
+
+const handleUserdetails = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  mutation.mutate({
+    name,
+    dateOfbirth,
+    mobileNumber,
+  });
+};
+
   return (
     <div className="w-full p-8 h-10  flex items-center justify-end absolute ">
       <div className="flex items-center gap-8">
@@ -140,11 +133,11 @@ export default function LoginNavbar() {
 
               <div className="mt-2 flex gap-3">
                 <button
-                  disabled={loading}
+                  disabled={mutation.isPending}
                   type="submit"
                   className="flex-1 rounded cursor-pointer bg-[#dadada] px-2 py-1  font-semibold text-[#0a0a0a]"
                 >
-                  {loading ? "Saving..." : "Save"}
+                  {mutation.isPending ? "Saving..." : "Save"}
                 </button>
 
                 <button

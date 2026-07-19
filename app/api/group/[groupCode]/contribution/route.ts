@@ -87,6 +87,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ groupCo
             { status: 201 }
         )
     } catch (error) {
+        console.log(error)
         return NextResponse.json(
             { error: "An unexpected error occurred." },
             { status: 500 }
