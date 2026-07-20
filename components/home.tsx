@@ -1,9 +1,10 @@
+
 import Addfriend from "./addfriend";
 import FriendList from "./friendlist";
 import Group from "./group";
 import Userdetails from "./userdetailsCard";
 import Welcomemsg from "./welcomemsg";
-import { Users } from 'lucide-react';
+
 
 export default function Home() {
     return (
@@ -20,7 +21,8 @@ export default function Home() {
                                 Your Groups
                             </h2>
                         </div>
-                        {/* <Group /> */}
+
+                        <Group />
                     </section>
                     <aside className="col-span-4 space-y-6 sticky top-24">
                         <Userdetails />

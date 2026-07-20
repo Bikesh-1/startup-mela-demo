@@ -1,112 +1,76 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
+import { useParams } from "next/navigation";
 import LoginNavbar from "@/components/loginNavbar";
+import { useContributionDetail, useGroupContribution } from "@/hooks/useGroupContribution";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { contribution } from "@/services/contribution.service";
+import { toast } from "sonner";
 
-type GroupMember = {
-  id: string;
-  user: {
-    coustumerId: string;
-    userdetails: {
-      name: string;
-      profilephoto?: string;
-    };
-  };
-};
 
-type Activity = {
-  id: string;
-  amount: string;
-  month: string;
-  user: {
-    coustumerId: string;
-    userdetails: {
-      name: string;
-      profilephoto?: string;
-    };
-  }
-}
 
-type Group = {
-  groupName: string;
-  groupCode: string;
-  description: string;
-  monthlyContribution: number;
-  totalAmount: number;
-  groupmember: GroupMember[];
-};
+
 
 export default function GroupPage() {
-  const { groupCode } = useParams();
-  const [group, setGroup] = useState<Group | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [groupmember, setGroupmember] = useState<GroupMember[]>([]);
-  const [activity, setActivity] = useState<Activity[]>([]);
   const [month, setMonth] = useState("");
   const [openContri, setOpenContri] = useState(false);
+  const params = useParams();
+  const currentMonth = new Date().toISOString().slice(0, 7);
+  const groupCode = params.groupCode as string;
+  const {
+    data: groupDetails,
+    isPending:isGroupDetailsPending,
+    isError:isGroupDetailsError,
+    error:errorGroupDetails
 
-  const handleContribution = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`/api/group/${groupCode}/contribution`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          amount: group?.monthlyContribution,
-          month,
-        })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setOpenContri(false);
-        console.log(data)
-      }
-    } catch (error) {
-      console.log(error);
+  } = useGroupContribution(groupCode);
+
+  const {
+    data: contributionDetails,
+    isPending:isContributionPending,
+    isError:isContributionError,
+    error:errorContribution
+  } = useContributionDetail(groupCode);
+
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: contribution,
+
+    onSuccess:(data) =>{
+      toast.success(data.message);
+      queryClient.invalidateQueries({
+        queryKey: ["group", groupCode],
+      })
+      queryClient.invalidateQueries({
+        queryKey: ["contribution", groupCode],
+      })
+      setOpenContri(false)
+    },
+    onError:(error:Error)=>{
+      toast.error(error.message)
     }
-  }
+  })
 
-  useEffect(() => {
-    const fetchGroup = async () => {
-      try {
-        const res = await fetch(`/api/group/${groupCode}`);
-        const data = await res.json();
-        if (res.ok) {
-          setGroup(data.groupDetails);
-          setGroupmember(data.groupDetails.groupmember);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const handleContribution = (e: React.FormEvent) => {
+  e.preventDefault();
 
-    fetchGroup();
-  }, [groupCode]);
+  mutation.mutate({
+    groupCode,
+    amount: groupDetails?.monthlyContribution??0,
+    month,
+  });
+};
 
-  useEffect(() => {
-    const fetchContribution = async () => {
-      try {
-        const res = await fetch(`/api/group/${groupCode}/contribution`);
-        const data = await res.json();
-        if (res.ok) {
-          setActivity(data.contributionDetails)
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    }
-    fetchContribution();
-  }, [groupCode])
+    if (isGroupDetailsPending||isContributionPending) return <p>Loading...</p>;
 
-  if (loading) return <h1 className="w-auto h-screen bg-[#dadada] flex items-center justify-center font-mono">Loading please wait...</h1>;
-  if (!group) return <h1>Group Not Found</h1>;
+  if (isGroupDetailsError||isContributionError) return <p>{errorGroupDetails?.message} || {errorContribution?.message}</p>;
+
+ 
+
   return (
-    <div className="min-h-screen w-full relative bg-[#dadada] font-mono">
+    <div className="min-h-screen w-full relative bg-[#dadada]">
       <div
         className="absolute inset-0 z-0"
         style={{
@@ -157,13 +121,13 @@ export default function GroupPage() {
       <div className="relative z-10">
         <LoginNavbar />
       </div>
-      
+
 
       <div className="p-6 flex gap-6 min-h-screen items-start justify-between relative z-10">
         <div className="w-1/3 bg-[#0a0a0a] border border-[#1d1d1d] rounded-2xl p-8 text-[#dadada] shadow-lg">
 
           <h1 className="text-4xl font-bold tracking-wide">
-            {group.groupName}
+            {groupDetails.groupName}
           </h1>
 
           <p className="text-sm text-gray-500 mt-2">
@@ -174,27 +138,27 @@ export default function GroupPage() {
 
             <div className="flex justify-between border-b border-[#1f1f1f] pb-3">
               <span className="text-gray-400">Group Code</span>
-              <span className="font-semibold">{group.groupCode}</span>
+              <span className="font-semibold">{groupDetails.groupCode}</span>
             </div>
 
             <div className="flex justify-between border-b border-[#1f1f1f] pb-3">
               <span className="text-gray-400">Monthly Contribution</span>
               <span className="font-semibold">
-                ₹ {group.monthlyContribution}
+                ₹ {groupDetails.monthlyContribution}
               </span>
             </div>
 
             <div className="flex justify-between border-b border-[#1f1f1f] pb-3">
               <span className="text-gray-400">Total Amount</span>
               <span className="font-semibold text-green-400">
-                ₹ {group.totalAmount}
+                ₹ {groupDetails.totalAmount}
               </span>
             </div>
 
             <div>
               <p className="text-gray-400 mb-2">Description</p>
               <p className="leading-7 text-gray-300">
-                {group.description}
+                {groupDetails.description}
               </p>
             </div>
 
@@ -202,9 +166,9 @@ export default function GroupPage() {
           <div className="flex items-center justify-center gap-8">
             <button
               onClick={() => setOpenContri(true)}
-              className=" w-auto px-2 py-1 rounded bg-[#dadada] text-[#0a0a0a] font-semibold hover:scale-[1.02] transition"
+              className=" w-auto px-2 py-1 rounded bg-[#dadada] text-[#0a0a0a] font-semibold hover:scale-[1.02] transition cursor-pointer"
             >
-              Contribute
+            Contribute
             </button>
 
             <button className="border border-[#dadada] text-[#dadada] px-2 py-1 rounded">Message</button>
@@ -215,7 +179,7 @@ export default function GroupPage() {
             </h2>
 
             <div className="space-y-3">
-              {groupmember.map((member) => (
+              {groupDetails.groupmember.map((member) => (
                 <div
                   key={member.id}
                   className="text-white flex items-center justify-between bg-[#141414] border border-[#202020] rounded-xl px-4 py-3"
@@ -245,7 +209,7 @@ export default function GroupPage() {
           <h2 className="text-2xl font-semibold text-[#dadada]">
             Activity
           </h2>
-          {activity.map((item) => (
+          {contributionDetails.map((item) => (
             <div key={item.id} className="mt-6 space-y-4">
               <div className="flex justify-between items-start border-l-2 border-gray-700 pl-4">
                 <div>
@@ -290,7 +254,7 @@ export default function GroupPage() {
                 </label>
 
                 <div className="w-full rounded border border-[#2c2c2c] bg-[#121212] px-3 py-2 text-[#dadada]">
-                  ₹ {group?.monthlyContribution}
+                  ₹ {groupDetails.monthlyContribution}
                 </div>
               </div>
 
@@ -300,6 +264,8 @@ export default function GroupPage() {
                 </label>
                 <input
                   type="month"
+                  readOnly
+                  defaultValue={currentMonth}
                   placeholder="July"
                   onChange={(e) => setMonth(e.target.value)}
                   className="w-full rounded border border-[#2c2c2c] bg-[#121212] px-2 py-1 text-[#dadada] placeholder:text-gray-500 outline-none transition-all duration-200 focus:border-[#dadada] focus:ring-2 focus:ring-[#6D4DFE]/30"
@@ -308,11 +274,11 @@ export default function GroupPage() {
 
               <div className="flex gap-3 pt-2">
                 <button
-
+                  disabled={mutation.isPending}
                   type="submit"
                   className="flex-1 rounded bg-[#dadada] text-[#0a0a0a] font-semibold px-2 py-1 cursor-pointer"
                 >
-                  Contribute
+                  {mutation.isPending ? "Contributing..." : "Contribute"}
                 </button>
                 <button
                   className="flex-1 rounded border border-[#dadada] text-[#dadada] font-semibold px-2 py-1 cursor-pointer"

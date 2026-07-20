@@ -20,7 +20,7 @@ export default function FriendList() {
     }
 
     return (
-        <div className="w-80 rounded-2xl bg-black border border-zinc-800 p-5 font-mono shadow-lg shadow-[#4F47EA]/10">
+        <div className="w-80 rounded-2xl bg-black border border-zinc-800 p-5 shadow-lg shadow-[#4F47EA]/10">
     <h2 className="text-2xl font-black text-[#dadada] border-b border-zinc-800 pb-3 mb-4">
         Friend List
     </h2>

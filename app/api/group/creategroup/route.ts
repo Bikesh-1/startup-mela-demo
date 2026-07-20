@@ -10,7 +10,7 @@ export async function POST(req: Request) {
         if (!session) {
             return NextResponse.json(
                 { error: "Unauthorized. Please sign in to continue." },
-        { status: 401 }
+                { status: 401 }
             )
         }
         const email = session.user.email;
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
         if (!userExist) {
             return NextResponse.json(
                 { error: "User account not found." },
-        { status: 404 }
+                { status: 404 }
             )
         }
         const groupCode = "SWG" + Math.random().toString(36).substring(2, 8).toUpperCase();
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
             }
         })
         return NextResponse.json(
-            { createGroup,  message: "Group created successfully.", },
+            { createGroup, message: "Group created successfully.", },
             { status: 201 }
         )
 
@@ -62,7 +62,7 @@ export async function GET(req: Request) {
         if (!session?.user?.email) {
             return NextResponse.json(
                 { error: "Unauthorized. Please sign in to continue." },
-        { status: 401 }
+                { status: 401 }
             )
         }
         const email = session.user.email as string;
@@ -74,7 +74,7 @@ export async function GET(req: Request) {
         if (!userExist) {
             return NextResponse.json(
                 { error: "User account not found." },
-        { status: 404 }
+                { status: 404 }
             )
         }
 
@@ -94,24 +94,32 @@ export async function GET(req: Request) {
                 ],
             },
             include: {
-                groupmember: true,
+                groupmember: {
+                    include: {
+                        user: {
+                            select: {
+                                coustumerId: true,
+                            },
+                        },
+                    },
+                },
                 contribution: true,
                 message: true,
                 createdBy: true,
             },
         });
         if (groupDetails.length === 0) {
-    return NextResponse.json(
-        {
-            message: "No groups found.",
-            groupDetails: [],
-        },
-        {
-            status: 200,
+            return NextResponse.json(
+                {
+                    message: "No groups found.",
+                    groupDetails: [],
+                },
+                {
+                    status: 200,
+                }
+            );
         }
-    );
-}
-        return NextResponse.json({ groupDetails,  message: "Groups fetched successfully.", }, { status: 200 })
+        return NextResponse.json({ groupDetails, message: "Groups fetched successfully.", }, { status: 200 })
     } catch (error) {
         return NextResponse.json({ error: "An unexpected error occurred while fetching groups." }, { status: 500 })
     }

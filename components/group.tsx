@@ -1,89 +1,84 @@
 "use client"
+import { useFriendList } from "@/hooks/useFriendList";
+import { useGroupDetails } from "@/hooks/useGroupDetails";
+import { addingFriend } from "@/services/group.service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-
-type Group = {
-    groupName: string,
-    groupCode: string,
-    description: string,
-    monthlyContribution: number,
-    dueDate: string,
-    totalAmount: number,
-    id: string,
-    groupmember: string[]
-}
-type FriendList = {
-    receiver: {
-        coustumerId: string;
-        userdetails: {
-            name: string;
-        };
-    };
-};
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function Group() {
-    const [groups, setGroups] = useState<Group[]>([]);
     const [openPopup, setOpenPopup] = useState(false);
     const [selectedGroup, setSelectedGroup] = useState<any>(null);
-    const [FriendList, setFriendList] = useState<FriendList[]>([]);
-
+    const [addingFriendId, setAddingFriendId] = useState<string | null>(null);
     const router = useRouter();
-    useEffect(() => {
-        const getFriendList = async () => {
-            try {
-                const res = await fetch("/api/addfriends");
 
-                const data = await res.json();
-                if (res.ok) {
-                    setFriendList(data.friendlist)
-                } else {
-                    console.log(data.message)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        };
-        getFriendList()
-    }, [])
 
-    const handleAddMember = async (friendCode: string) => {
-        const body = {
-            groupCode: selectedGroup.groupCode,
-            coustumerId: friendCode,
-        };
+    const {
+        data: groups = [],
+        isPending: isGroupPending,
+        isError: isGroupError,
+        error: groupError
+    } = useGroupDetails();
 
-        console.log(body);
-        const res = await fetch("/api/group/addmember", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(body),
-        });
+    const {
+        data: FriendList = [],
+        isPending: isFriendPending,
+        isError: isFriendError,
+        error: friendError
+    } = useFriendList();
 
-        const data = await res.json();
-        if (res.ok) {
-            alert(data.message);
-        } else {
-            alert(data.error);
+
+
+
+
+
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: addingFriend,
+
+        onSuccess: (data) => {
+            toast.success(data.message);
+            queryClient.invalidateQueries({
+                queryKey: ["group"],
+            })
+            queryClient.invalidateQueries({
+                queryKey: ["friend"],
+            })
+            setOpenPopup(false);
+        },
+
+        onError: (error: Error) => {
+            toast.error(error.message)
         }
-        setOpenPopup(false);
+    })
+
+    const handleAddMember = (friendCode: string) => {
+        setAddingFriendId(friendCode);
+
+        mutation.mutate(
+            {
+                groupCode: selectedGroup.groupCode,
+                coustumerId: friendCode,
+            },
+            {
+                onSettled: () => setAddingFriendId(null),
+            }
+        );
     };
 
-    useEffect(() => {
-        const getGroup = async () => {
-            try {
-                const res = await fetch("/api/group/creategroup");
-                const data = await res.json();
-                if (res.ok) {
-                    setGroups(data.groupDetails)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        };
-        getGroup();
-    }, [])
+
+    if (isGroupPending || isFriendPending) {
+        return <p>Loading....</p>
+    }
+
+    if (isGroupError || isFriendError) {
+        return <p>{groupError?.message || friendError?.message}</p>
+    }
+
+
+
 
 
 
@@ -145,38 +140,90 @@ export default function Group() {
                 </div>
             ))}
             {openPopup && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center">
-                    <div className="bg-[#0a0a0a] p-6 rounded-lg w-112.5 text-[#dadada]">
-                        <h2 className="text-2xl font-bold mb-5">
-                            Friend List
-                        </h2>
-                        {FriendList.map((friend) => (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+                    <div className="w-full max-w-xl rounded-2xl border border-[#2a2a2a] bg-[#0d0d0d] shadow-2xl">
 
-                            <div
-                                key={friend.receiver.coustumerId}
-                                className="flex justify-between items-center border-b py-3"
-                            >
-                                <div>
-                                    <h3 className="uppercase">Name: {friend.receiver.userdetails.name}</h3>
-                                    <p className="uppercase">User code: {friend.receiver.coustumerId}</p>
-                                </div>
-
-                                <button
-                                    className="bg-[#dadada] text-[#0a0a0a] px-2 py-1 rounded"
-                                    onClick={() =>
-                                        handleAddMember(friend.receiver.coustumerId)
-                                    }
-                                >
-                                    Add member
-                                </button>
+                        {/* Header */}
+                        <div className="flex items-center justify-between border-b border-[#1f1f1f] px-6 py-4">
+                            <div>
+                                <h2 className="text-xl font-bold text-white">
+                                    Add Group Members
+                                </h2>
+                                <p className="text-sm text-gray-500">
+                                    Select friends to add to this group
+                                </p>
                             </div>
-                        ))}
-                        <button
-                            className="mt-5 bg-red-500 text-white px-2 py-1 rounded"
-                            onClick={() => setOpenPopup(false)}
-                        >
-                            Close
-                        </button>
+
+                            <button
+                                onClick={() => setOpenPopup(false)}
+                                className="rounded-lg p-2 text-gray-400 transition hover:bg-[#1a1a1a] hover:text-white"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Friend List */}
+                        <div className="max-h-105 space-y-3 overflow-y-auto px-6 py-5">
+
+                            {FriendList.length === 0 ? (
+                                <div className="py-10 text-center text-gray-500">
+                                    No friends found.
+                                </div>
+                            ) : (
+                                FriendList.map((friend) => {
+                                    const isAdded = selectedGroup?.groupmember?.some(
+                                        (member: any) =>
+                                            member.user.coustumerId === friend.receiver.coustumerId
+                                    );
+
+                                    return (
+                                        <div
+                                            key={friend.receiver.coustumerId}
+                                            className="flex items-center justify-between rounded-xl border border-[#222] bg-[#111] px-4 py-4 transition hover:border-[#4F47EA]/60"
+                                        >
+                                            <div>
+                                                <h3 className="font-semibold uppercase text-white">
+                                                    {friend.receiver.userdetails.name}
+                                                </h3>
+
+                                                <p className="mt-1 text-xs tracking-wide text-gray-500">
+                                                    {friend.receiver.coustumerId}
+                                                </p>
+                                            </div>
+
+                                            <button
+                                                disabled={isAdded || addingFriendId === friend.receiver.coustumerId}
+                                                onClick={() => handleAddMember(friend.receiver.coustumerId)}
+                                                className={`rounded-lg px-3 py-2 text-sm font-medium transition ${isAdded
+                                                        ? "cursor-not-allowed border border-green-600/30 bg-green-600/20 text-green-400"
+                                                        : addingFriendId === friend.receiver.coustumerId
+                                                            ? "cursor-wait bg-[#4F47EA]/70 text-white"
+                                                            : "bg-white text-black cursor-pointer"
+                                                    }`}
+                                            >
+                                                {isAdded
+                                                    ? "Already member"
+                                                    : addingFriendId === friend.receiver.coustumerId
+                                                        ? "Adding..."
+                                                        : "Add Friend"}
+                                            </button>
+                                        </div>
+                                    );
+                                })
+                            )}
+
+                        </div>
+
+                        {/* Footer */}
+                        <div className="border-t border-[#1f1f1f] px-6 py-4">
+                            <button
+                                onClick={() => setOpenPopup(false)}
+                                className="w-full rounded-xl border border-[#2a2a2a] py-2.5 font-medium text-gray-300 transition hover:bg-[#1a1a1a]"
+                            >
+                                Close
+                            </button>
+                        </div>
+
                     </div>
                 </div>
             )}

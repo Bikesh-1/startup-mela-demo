@@ -1,33 +1,22 @@
 "use client"
-import { useEffect, useState } from "react";
 import { LogOut } from 'lucide-react';
-type UserDetails = {
-    name: string;
-    user: {
-        coustumerId: string;
-    };
-};
+import { useUserDetails } from "@/hooks/useUserDetails";
+
 export default function Sidebarmsg() {
-    const [userdetails, setUserdetails] = useState<UserDetails | null>(null);
+     const {
+        data: userdetails,
+        isPending,
+        isError,
+        error
+    } = useUserDetails();
 
-    useEffect(() => {
-        const getUserdetails = async () => {
-            try {
-                const res = await fetch("/api/userdetails");
+    if (isPending) {
+        return <p>Loading...</p>
+    }
 
-                const data = await res.json();
-                if (res.ok) {
-                    setUserdetails(data.userDetails)
-                } else {
-                    console.log(data.message)
-                }
-            } catch (error) {
-                console.log(error)
-            }
-        };
-        getUserdetails();
-    }, [])
-
+    if (isError) {
+        return <p>{error.message}</p>
+    }
 
     return (
         <div>

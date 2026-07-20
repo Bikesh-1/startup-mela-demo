@@ -2,51 +2,60 @@
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 import LoginNavbar from "../../components/loginNavbar";
+import { toast } from "sonner";
+import { useGroupDetails } from "@/hooks/useGroupDetails";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createGroup } from "@/services/group.service";
 
 export default function Creategroup() {
     const [groupName, setGroupName] = useState("");
     const [description, setDescription] = useState("");
-    const [monthlyContribution, setMonthlyContribution] = useState<number>();
+    const [monthlyContribution, setMonthlyContribution] = useState<number>(0);
     const [dueDate, setDuedate] = useState("");
-    const [totalAmount, setTotalamount] = useState<number>();
+    const [totalAmount, setTotalamount] = useState<number>(0);
     const router = useRouter();
     
-    const handlegroupCreation = async (e: React.FormEvent) => {
-        e.preventDefault();
-        try {
-            const res = await fetch("/api/group/creategroup", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    groupName,
-                    description,
-                    monthlyContribution,
-                    dueDate,
-                    totalAmount,
-                }),
-            });
-            const data = await res.json();
-            if (res.ok) {
-                console.log(data)
-                // setMessage(data.message);
-                router.push("/dashboard")
-            }
-        } catch (error) {
-            console.log(error);
+    const{data: Group} = useGroupDetails();
+
+    const queryClient = useQueryClient();
+
+    const mutation = useMutation({
+        mutationFn: createGroup,
+
+        onSuccess: (data) =>{
+            toast.success(data.message);
+            queryClient.invalidateQueries({
+                queryKey:["group"],
+            })
+            queryClient.invalidateQueries({
+                queryKey: ["friend"],
+            })
+            router.push("/dashboard")
+        },
+
+        onError:(error:Error) =>{
+            toast.error(error.message)
         }
+    })
+
+    const handlegroupCreation = (e: React.FormEvent) =>{
+        e.preventDefault();
+
+        mutation.mutate({
+            groupName,
+            description,
+            monthlyContribution,
+            dueDate,
+            totalAmount,
+        })
     }
+
     return (
         <div className="min-h-screen w-full relative bg-[#dadada] ">
 
             <div
                 className="absolute inset-0 z-0"
-                style={{
-                    backgroundImage: `
-        linear-gradient(to right, #0a0a0a 1px, transparent 1px),
-        linear-gradient(to bottom, #0a0a0a 1px, transparent 1px)
-      `,
+                style={{backgroundImage: `linear-gradient(to right, #0a0a0a 1px, transparent 1px),linear-gradient(to bottom, #0a0a0a 1px, transparent 1px)`,
                     backgroundSize: "20px 20px",
                     backgroundPosition: "0 0, 0 0",
                     maskImage: `
@@ -174,10 +183,11 @@ export default function Creategroup() {
                                 />
                             </div>
                             <button
+                            disabled={mutation.isPending}
                                 type="submit"
                                 className="mt-3 bg-[#dadada] text-[#0a0a0a] font-semibold py-3 rounded  transition-all duration-300"
                             >
-                                Create Group
+                                {mutation.isPending ? "create..." : "Create Group"}
                             </button>
                         </form>
 

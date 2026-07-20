@@ -55,8 +55,6 @@ export default function Welcomemsg() {
                             </button>
                         </div>
                     </div>
-
-                    {/* Right Side Image */}
                     <div className="relative z-10 hidden md:block">
                         <Image
                             src="/wallet.png"
@@ -65,8 +63,6 @@ export default function Welcomemsg() {
                             height={80}
                         />
                     </div>
-
-                    {/* Decorative Dots */}
                     <div className="absolute right-40 top-8 h-2 w-2 rounded-full bg-purple-400"></div>
                     <div className="absolute right-24 bottom-10 h-1.5 w-1.5 rounded-full bg-violet-300"></div>
                     <div className="absolute right-56 bottom-16 h-1 w-1 rounded-full bg-white"></div>

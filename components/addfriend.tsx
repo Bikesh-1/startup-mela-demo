@@ -50,7 +50,7 @@ export default function Addfriend() {
                     value={coustumerId} type="text" onChange={(e) => setcoustumerId(e.target.value)} />
                 <button
                     disabled={mutation.isPending}
-                    className=" text-white bg-[#4F47EA] px-4 py-3 rounded cursor-pointer"
+                    className=" text-white bg-[#4F47EA] px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer flex items-center justify-center gap-2"
                     type="submit">
                         {mutation.isPending ? "Adding..." : "+ Add friend"} 
                         </button>

@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 
-export async function POST(req: Response) {
+export async function POST(req: Request) {
     try {
         const { groupCode, coustumerId } = await req.json();
         const session = await getServerSession(authOptions);

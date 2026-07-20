@@ -21,7 +21,7 @@ export default function Userdetails() {
 
   return (
     <div >
-      <div className="w-80 rounded-2xl border border-[#202020] bg-[#0a0a0a] p-6 font-mono shadow-[0_0_40px_rgba(79,71,234,0.12)] transition-all duration-300 hover:border-[#4F47EA]/50">
+      <div className="w-80 rounded-2xl border border-[#202020] bg-[#0a0a0a] p-6 shadow-[0_0_40px_rgba(79,71,234,0.12)] transition-all duration-300 hover:border-[#4F47EA]/50">
 
         <div className="flex items-center justify-between">
           <div>
@@ -29,21 +29,10 @@ export default function Userdetails() {
               Profile
             </p>
           </div>
-
-          <div className="h-3 w-3 rounded-full bg-[#4F47EA] shadow-[0_0_15px_#4F47EA]" />
         </div>
 
         {userdetails ? (
           <div className="mt-6 space-y-4">
-            <div className="rounded-xl border border-[#4F47EA]/30 bg-[#4F47EA]/10 p-3">
-              <p className="text-xs uppercase tracking-widest text-gray-400">
-                Customer ID
-              </p>
-              <p className="mt-1 text-lg font-black text-[#dadada]">
-                {userdetails.user.coustumerId}
-              </p>
-            </div>
-
             <div className="space-y-3 text-sm">
               <div className="flex justify-between border-b border-[#1d1d1d] pb-2">
                 <span className="text-gray-400">Name</span>

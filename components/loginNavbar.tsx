@@ -18,36 +18,36 @@ export default function LoginNavbar() {
   const [mobileNumber, setMobileNumber] = useState("")
   // important
 
-  const {data : userDetails} = useUserDetails();
+  const { data: userDetails } = useUserDetails();
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: createUserDetails,
 
-    onSuccess:(data) =>{
+    onSuccess: (data) => {
       toast.success(data.message);
       setPopup(false);
 
       queryClient.invalidateQueries({
-        queryKey:["profile"],
+        queryKey: ["profile"],
       })
     },
 
-    onError:(error:Error) =>{
+    onError: (error: Error) => {
       toast.error(error.message)
     }
   })
 
-const handleUserdetails = (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleUserdetails = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  mutation.mutate({
-    name,
-    dateOfbirth,
-    mobileNumber,
-  });
-};
+    mutation.mutate({
+      name,
+      dateOfbirth,
+      mobileNumber,
+    });
+  };
 
   return (
     <div className="w-full p-8 h-10  flex items-center justify-end absolute ">
