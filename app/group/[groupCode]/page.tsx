@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import LoginNavbar from "@/components/loginNavbar";
 import { useContributionDetail, useGroupContribution } from "@/hooks/useGroupContribution";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -18,6 +19,7 @@ export default function GroupPage() {
   const params = useParams();
   const currentMonth = new Date().toISOString().slice(0, 7);
   const groupCode = params.groupCode as string;
+  const router = useRouter();
   const {
     data: groupDetails,
     isPending:isGroupDetailsPending,
@@ -63,7 +65,7 @@ export default function GroupPage() {
   });
 };
 
-    if (isGroupDetailsPending||isContributionPending) return <p>Loading...</p>;
+  if (isGroupDetailsPending||isContributionPending) return <p>Loading...</p>;
 
   if (isGroupDetailsError||isContributionError) return <p>{errorGroupDetails?.message} || {errorContribution?.message}</p>;
 
@@ -171,7 +173,7 @@ export default function GroupPage() {
             Contribute
             </button>
 
-            <button className="border border-[#dadada] text-[#dadada] px-2 py-1 rounded">Message</button>
+            <button onClick={() => router.push(`/group/${groupCode}/message`)} className="border border-[#dadada] text-[#dadada] px-2 py-1 rounded">Message</button>
           </div>
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">

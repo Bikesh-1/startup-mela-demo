@@ -8,6 +8,7 @@ import { Bell } from 'lucide-react';
 import { useUserDetails } from "@/hooks/useUserDetails";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createUserDetails } from "@/services/user.service";
+import Image from "next/image";
 
 
 export default function LoginNavbar() {
@@ -50,7 +51,13 @@ export default function LoginNavbar() {
   };
 
   return (
-    <div className="w-full p-8 h-10  flex items-center justify-end absolute ">
+    <div className="w-full p-8 h-10  flex items-center justify-between absolute ">
+      <Image
+                    src="/logo.png"
+                    alt="logo"
+                    width={150}
+                    height={150}
+                />
       <div className="flex items-center gap-8">
         <button
           onClick={() => (setPopup(true))}
