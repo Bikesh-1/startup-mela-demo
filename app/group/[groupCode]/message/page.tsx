@@ -61,7 +61,7 @@ export default function MessagePage() {
         <div>
             <LoginNavbar/>
         
-        <div className="h-[98vh] bg-gray-100 flex justify-center items-center p-8 gap-8 ">
+        <div className="h-screen w-full bg-white flex justify-center items-center gap-8 ">
             
             <div className="w-auto max-w-5xl h-[80vh] bg-black text-white border border-zinc-800 p-8 flex flex-col">
                 {/* Header */}
@@ -124,7 +124,7 @@ export default function MessagePage() {
                         Members ({FriendList.length})
                     </h2>
 
-                    <div className="h-48 overflow-y-auto space-y-2 pr-1">
+                    {/* <div className="h-48 overflow-y-auto space-y-2 pr-1">
                         {FriendList.length === 0 ? (
                             <div className="rounded border border-zinc-800 py-6 text-center text-gray-500">
                                 No friends found.
@@ -146,7 +146,7 @@ export default function MessagePage() {
                                 </div>
                             ))
                         )}
-                    </div>
+                    </div> */}
                 </div>
             </div>
             <div className="w-full max-w-5xl h-[80vh] bg-white overflow-hidden flex flex-col border">

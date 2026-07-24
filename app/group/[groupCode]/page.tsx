@@ -72,50 +72,15 @@ export default function GroupPage() {
  
 
   return (
-    <div className="min-h-screen w-full relative bg-[#dadada]">
+    <div className="min-h-screen w-full relative bg-white">
       <div
         className="absolute inset-0 z-0"
-        style={{
-          backgroundImage: `
-        linear-gradient(to right, #0a0a0a 1px, transparent 1px),
-        linear-gradient(to bottom, #0a0a0a 1px, transparent 1px)
-      `,
+        style={{ 
+          backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px)`,
           backgroundSize: "20px 20px",
           backgroundPosition: "0 0, 0 0",
-          maskImage: `
-            repeating-linear-gradient(
-              to right,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            repeating-linear-gradient(
-              to bottom,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-           radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%)
-      `,
-          WebkitMaskImage: `
-                   repeating-linear-gradient(
-              to right,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-            repeating-linear-gradient(
-              to bottom,
-              black 0px,
-              black 3px,
-              transparent 3px,
-              transparent 8px
-            ),
-           radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%)
-      `,
+          maskImage: `repeating-linear-gradient(to right,black 0px,black 3px,transparent 3px,transparent 8px),repeating-linear-gradient(to bottom,black 0px,black 3px,transparent 3px,transparent 8px),radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%)`,
+          WebkitMaskImage: `repeating-linear-gradient(to right,black 0px,black 3px,transparent 3px,transparent 8px),repeating-linear-gradient(to bottom,black 0px,black 3px,transparent 3px,transparent 8px),radial-gradient(ellipse 80% 80% at 100% 100%, #000 50%, transparent 90%)`,
           maskComposite: "intersect",
           WebkitMaskComposite: "source-in",
         }}
@@ -125,10 +90,10 @@ export default function GroupPage() {
       </div>
 
 
-      <div className="p-6 flex gap-6 min-h-screen items-start justify-between relative z-10">
-        <div className="w-1/3 bg-[#0a0a0a] border border-[#1d1d1d] rounded-2xl p-8 text-[#dadada] shadow-lg">
+      <div className="p-6 flex gap-6 min-h-screen items-center justify-between relative z-10">
+        <div className="w-2/3 bg-black border border-[#1d1d1d] rounded p-8 text-white">
 
-          <h1 className="text-4xl font-bold tracking-wide">
+          <h1 className="text-2xl font-bold tracking-wide">
             {groupDetails.groupName}
           </h1>
 
@@ -168,12 +133,12 @@ export default function GroupPage() {
           <div className="flex items-center justify-center gap-8">
             <button
               onClick={() => setOpenContri(true)}
-              className=" w-auto px-2 py-1 rounded bg-[#dadada] text-[#0a0a0a] font-semibold hover:scale-[1.02] transition cursor-pointer"
+              className=" w-auto text-black border border-[#dadada] bg-white px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
             >
             Contribute
             </button>
 
-            <button onClick={() => router.push(`/group/${groupCode}/message`)} className="border border-[#dadada] text-[#dadada] px-2 py-1 rounded">Message</button>
+            <button onClick={() => router.push(`/group/${groupCode}/message`)} className="text-white border border-white px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer">Message</button>
           </div>
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">
@@ -207,7 +172,7 @@ export default function GroupPage() {
             </div>
           </div>
         </div>
-        <div className="w-1/3 bg-[#0a0a0a] border border-[#1d1d1d] rounded-2xl p-8">
+        <div className="w-1/3 bg-black h-[80vh] rounded p-8">
           <h2 className="text-2xl font-semibold text-[#dadada]">
             Activity
           </h2>
@@ -237,13 +202,13 @@ export default function GroupPage() {
 
       {openContri && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-10">
-          <div className="w-full max-w-md rounded-md border border-[#232323] bg-[#0a0a0a] p-8 shadow-2xl relative z-10">
+          <div className="w-full max-w-md rounded bg-white text-black p-8 shadow-2xl relative z-10">
 
             <div className="mb-6">
-              <h2 className="text-2xl font-bold text-[#dadada]">
+              <h2 className="text-2xl font-bold text-black">
                 Monthly Contribution
               </h2>
-              <p className="mt-2 text-sm text-gray-400">
+              <p className="mt-2 text-sm text-black">
                 Enter your contribution details for this month.
               </p>
             </div>
@@ -251,17 +216,17 @@ export default function GroupPage() {
             <form onSubmit={handleContribution} className="space-y-5">
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-black">
                   Contribution Amount
                 </label>
 
-                <div className="w-full rounded border border-[#2c2c2c] bg-[#121212] px-3 py-2 text-[#dadada]">
+                <div className="w-full rounded border border-[#2c2c2c] bg-black px-3 py-2 text-white">
                   ₹ {groupDetails.monthlyContribution}
                 </div>
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-medium text-gray-300">
+                <label className="mb-2 block text-sm font-medium text-black">
                   Month
                 </label>
                 <input
@@ -270,7 +235,7 @@ export default function GroupPage() {
                   defaultValue={currentMonth}
                   placeholder="July"
                   onChange={(e) => setMonth(e.target.value)}
-                  className="w-full rounded border border-[#2c2c2c] bg-[#121212] px-2 py-1 text-[#dadada] placeholder:text-gray-500 outline-none transition-all duration-200 focus:border-[#dadada] focus:ring-2 focus:ring-[#6D4DFE]/30"
+                  className="w-full rounded border border-[#2c2c2c] bg-black px-3 py-2 text-white placeholder:text-gray-500 outline-none transition-all duration-200 focus:border-[#dadada] focus:ring-2 focus:ring-[#6D4DFE]/30"
                 />
               </div>
 
@@ -278,12 +243,12 @@ export default function GroupPage() {
                 <button
                   disabled={mutation.isPending}
                   type="submit"
-                  className="flex-1 rounded bg-[#dadada] text-[#0a0a0a] font-semibold px-2 py-1 cursor-pointer"
+                  className="flex-1 text-white border bg-black px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
                 >
                   {mutation.isPending ? "Contributing..." : "Contribute"}
                 </button>
                 <button
-                  className="flex-1 rounded border border-[#dadada] text-[#dadada] font-semibold px-2 py-1 cursor-pointer"
+                  className="flex-1 text-black border border-black px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
                   onClick={() => setOpenContri(false)}>Close</button>
               </div>
             </form>

@@ -9,10 +9,11 @@ import { useUserDetails } from "@/hooks/useUserDetails";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createUserDetails } from "@/services/user.service";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 
 export default function LoginNavbar() {
-
+  const router = useRouter()
   const [popup, setPopup] = useState(false);
   const [name, setName] = useState("");
   const [dateOfbirth, setDateOfbirth] = useState("");
@@ -51,13 +52,7 @@ export default function LoginNavbar() {
   };
 
   return (
-    <div className="w-full p-8 h-10  flex items-center justify-between absolute ">
-      <Image
-                    src="/logo.png"
-                    alt="logo"
-                    width={150}
-                    height={150}
-                />
+    <div className="w-full p-8 h-10  flex items-center justify-end absolute">
       <div className="flex items-center gap-8">
         <button
           onClick={() => (setPopup(true))}
@@ -70,7 +65,9 @@ export default function LoginNavbar() {
           {userDetails ? "Details  Added" : "+ Add your details"}
         </button>
 
-        <button className="text-white bg-[#4F47EA] px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer flex items-center justify-center gap-2">
+        <button 
+        onClick={() => router.push("/creategroup")}
+        className="text-white bg-[#4F47EA] px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer flex items-center justify-center gap-2">
           <Plus size={12} />{" "}Create Group
         </button>
         <button

@@ -8,7 +8,6 @@ import { toast } from "sonner";
 export default function Signin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter()
     const handleLogin = async (e: React.FormEvent) => {
@@ -26,10 +25,8 @@ export default function Signin() {
                 toast.success("Login Successful");
                 router.push("/dashboard");
             }
-        } catch (error) {
-            console.log(error);
-            setMessage("Something went wrong")
-
+        } catch {
+            toast.error("An unexpected error occurred. Please try again later.")
         }finally {
     setLoading(false);
   }
@@ -40,7 +37,7 @@ export default function Signin() {
             <div
                 className="absolute inset-0 z-0"
                 style={{
-                    backgroundImage: `linear-gradient(to right, #0a0a0a 1px, transparent 1px), linear-gradient(to bottom, #0a0a0a 1px, transparent 1px)`,
+                    backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px)`,
                     backgroundSize: "20px 20px",
                     backgroundPosition: "0 0, 0 0",
                     maskImage: `repeating-linear-gradient(to right,black 0px,black 3px,transparent 3px,transparent 8px),
@@ -53,18 +50,18 @@ export default function Signin() {
             />
             <div className="flex items-center justify-center w-full h-screen relative z-10">
                 <Navbar />
-                <div className="bg-[#0a0a0a] w-98 h-2/3 font-mono text-white p-4 rounded-2xl flex items-center justify-center flex-col">
-                    <h1 className="text-xl font-black">Welcome back</h1>
-                    <p className="text-xs text-stone-400 mt-2 mb-6 text-center w-80">
+                <div className="bg-black w-98 h-2/3 text-white p-4 rounded-2xl flex items-center justify-center flex-col">
+                    <h1 className="text-xl font-bold">Welcome back</h1>
+                    <p className="text-sm text-stone-400 mt-2 mb-6 text-center w-80">
                         Sign in to continue managing your shared savings.
                     </p>
 
                     <form onSubmit={handleLogin}>
-                        <label className="text-xs text-stone-300 block mb-2">
+                        <label className="text-sm text-stone-300 block mb-2">
                             Email
                         </label>
                         <input
-                            className="w-80 border border-white px-2 rounded-md py-1"
+                            className="w-80 border border-white px-3 rounded-md py-2"
                             type="email"
                             placeholder="Enter your email"
                             value={email}
@@ -72,11 +69,11 @@ export default function Signin() {
                         />
                         <br />
                         <br />
-                        <label className="text-xs text-stone-300 block mb-2">
+                        <label className="text-sm text-stone-300 block mb-2">
                             Password
                         </label>
                         <input
-                            className="w-80 border border-white px-2 rounded-md py-1"
+                            className="w-80 border border-white px-3 py-2 rounded-md"
                             type="password"
                             placeholder="Enter your password"
                             value={password}
@@ -85,24 +82,18 @@ export default function Signin() {
                         <div className="w-80 flex justify-end mt-2">
                             <button
                                 type="button"
-                                className="text-[11px] text-stone-400 hover:text-white cursor-pointer">
+                                className="text-sm text-stone-400 hover:text-white cursor-pointer">
                                 Forgot password?
                             </button>
                         </div>
                         <br />
                         <button
                             disabled={loading}
-                            className="w-80 text-[#0a0a0a] bg-white px-2 py-1 rounded cursor-pointer"
-                            type="submit">
+                            className="w-80 text-black border border-[#dadada] bg-white px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer">
                             {loading ? "Please wait..." : "Sign in"}
                             
                         </button>
                     </form>
-                    {message && (
-                        <p className="text-xs mt-4 text-center w-80">
-                            {message}
-                        </p>
-                    )}
                     <p className="text-xs text-stone-400 mt-6">
                         Dont have an account?{" "}
                         <span

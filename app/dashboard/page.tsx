@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import Home from "../../components/home";
 import Sidebarmsg from "../../components/sidebarusermsg";
+import Image from "next/image";
 
 
 const menuItems = [
@@ -33,8 +34,18 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[#f5f5f5]">
       <LoginNavbar />
       <div className="flex">
-        <div className="bg-black w-64 h-dvh p-2 relative z-10 flex justify-between flex-col">
+        <div className="bg-black w-64 h-dvh p-2 relative z-20 flex justify-between flex-col">
+
           <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-center m-4">
+              <Image
+                    src="/whitelogo.png"
+                    alt="logo"
+                    width={150}
+                    height={150}
+                />
+            </div>
+                      
             {menuItems.map((item) => {
               const Icon = item.icon;
 
