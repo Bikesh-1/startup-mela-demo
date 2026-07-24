@@ -75,7 +75,7 @@ export default function VerifyEmail({
           </Text>
 
           <Text>
-            If you didn't create this account,
+            If you didnot create this account,
             you can safely ignore this email.
           </Text>
 

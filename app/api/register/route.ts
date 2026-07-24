@@ -42,13 +42,13 @@ export async function POST(req: Request) {
                 expiresAt,
             },
         });
-        const verifyUrl =`${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+        const verifyUrl =`${process.env.NEXT_PUBLIC_APP_URL}/verify-account?token=${token}`;
         await sendVerificationEmail(
             user.email,
             verifyUrl
         );
         return NextResponse.json(
-            { email: user.email, message: "Account created successfully." },
+            { email: user.email, message: "Account created successfully. Please verify your email before logging in."},
             { status: 201 }
         );
     } catch(error) {

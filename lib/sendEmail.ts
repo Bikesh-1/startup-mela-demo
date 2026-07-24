@@ -7,7 +7,7 @@ export async function sendVerificationEmail(
 ) {
     await resend.emails.send({
         from: "ShareWallet <onboarding@resend.dev>",
-        to: email,
+        to: "bikeshsharma2571@gmail.com",
         subject: "Verify your email",
         react: VerifyEmail({
       verifyUrl,

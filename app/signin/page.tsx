@@ -14,13 +14,13 @@ export default function Signin() {
         e.preventDefault();
         setLoading(true)
         try {
-            const result = await signIn("credentials", {
+            const res = await signIn("credentials", {
                 email,
                 password,
                 redirect: false,
             });
-            if (result?.error) {
-                toast.error("Invalid Email or Password");
+            if (res?.error) {
+                toast.error(res.error);
             } else {
                 toast.success("Login Successful");
                 router.push("/dashboard");

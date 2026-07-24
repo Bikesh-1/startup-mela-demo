@@ -26,8 +26,8 @@ export default function Signup() {
             });
             const data = await res.json();
             if (res.ok) {
-                toast.success("Welcome to ShareWallet! Your account is ready. Sign in to start saving smarter with your friends.");
-                router.push("/signin")
+                toast.success(data.message);
+                router.push(`/verify-email?email=${encodeURIComponent(email)}`);
             } else {
                 toast.error(data.message)
             }

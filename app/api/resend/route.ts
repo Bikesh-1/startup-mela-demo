@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { v4 as uuid } from "uuid";
-import { sendVerificationEmail } from "@/lib/sendVerificationEmail";
+import { sendVerificationEmail } from "@/lib/sendEmail";
 
 export async function POST(req: Request) {
     try {
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
             );
         }
 
-        if (user.isVerified) {
+        if (user.isVerfied) {
             return NextResponse.json(
                 { message: "Email is already verified." },
                 { status: 400 }
@@ -54,7 +54,7 @@ export async function POST(req: Request) {
             },
         });
 
-        const verifyUrl =`${process.env.NEXT_PUBLIC_APP_URL}/verify-email?token=${token}`;
+        const verifyUrl =`${process.env.NEXT_PUBLIC_APP_URL}/verify-account?token=${token}`;
 
         await sendVerificationEmail(
             user.email,
