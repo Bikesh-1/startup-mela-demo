@@ -6,11 +6,11 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request, { params }: { params: Promise<{ groupCode: string }> }) {
     try {
         const { groupCode } = await params;
-        const { amount, month } = await req.json();
+        const { reason, amount, month } = await req.json();
         const session = await getServerSession(authOptions);
         if (!session) {
             return NextResponse.json(
-                { error: "Unauthorized. Please sign in to continue." },
+                { error: "Unauthorized. Please sign into continue" },
                 { status: 401 }
             )
         }
@@ -41,52 +41,70 @@ export async function POST(req: Request, { params }: { params: Promise<{ groupCo
                     }
                 ]
             }
-        });
+        })
+
         if (!group) {
             return NextResponse.json(
                 { error: "Group not found or you are not a member of this group." },
                 { status: 404 }
             )
         }
-        const existingContribution = await prisma.contribution.findFirst({
+        const existingRequest = await prisma.sentrequest.findFirst({
             where: {
                 userId: user.id,
                 groupId: group.id,
                 month,
-            },
-        });
-        if (existingContribution) {
+            }
+        })
+
+        if (existingRequest) {
             return NextResponse.json(
-                { error: "You have already submitted your contribution for this month." },
+                { error: "You have already sent request , wait for your friend response. " },
                 { status: 409 }
-            );
+            )
         }
 
-        await prisma.contribution.create({
+        await prisma.sentrequest.create({
             data: {
                 userId: user.id,
                 groupId: group.id,
-                // useremail: user.email,
-                // groupCode: group.groupCode,
-                amount: amount,
-                month: month,
+                reason,
+                amount,
+                month
             }
         })
-        await prisma.group.update({
+
+        const pendingCount = await prisma.sentrequest.count({
             where: {
-                id: group.id,
-            },
-            data: {
-                totalAmount: {
-                    increment: Number(amount),
-                },
-            },
+                userId: user.id,
+                status: "PENDING"
+            }
+        })
+        const acceptedCount = await prisma.sentrequest.count({
+            where: {
+                userId: user.id,
+                status: "ACCEPTED"
+            }
+        });
+        const rejectedCount = await prisma.sentrequest.count({
+            where: {
+                userId: user.id,
+                status: "REJECTED"
+            }
         });
         return NextResponse.json(
-            { message: "Contribution submitted successfully." },
+            {
+                message: "Your request is sucessfull.",
+                counts: {
+                    pending: pendingCount,
+                    accepted: acceptedCount,
+                    rejected: rejectedCount
+                }
+            },
             { status: 201 }
         )
-    } catch{
+
+    } catch {
         return NextResponse.json(
             { error: "An unexpected error occurred." },
             { status: 500 }
@@ -104,29 +122,67 @@ export async function GET(req: Request, { params }: { params: Promise<{ groupCod
                 { status: 401 }
             )
         }
-        const contributionDetails = await prisma.contribution.findMany({
+        const user = await prisma.user.findUnique({
             where: {
-                group: {
-                    groupCode
-                }
+                email: session.user.email
+            }
+        });
+
+        if (!user) {
+            return NextResponse.json(
+                { error: "User account not found." },
+                { status: 404 }
+            );
+        }
+        const group = await prisma.group.findFirst({
+            where: {
+                groupCode,
+                OR: [
+                    {
+                        createdId: user.id
+                    },
+                    {
+                        groupmember: {
+                            some: {
+                                userId: user.id
+                            }
+                        }
+                    }
+                ]
+            }
+        });
+
+        if (!group) {
+            return NextResponse.json(
+                { error: "Group not found or you are not a member of this group." },
+                { status: 404 }
+            );
+        }
+        const sentrequestDetails = await prisma.sentrequest.findMany({
+            where: {
+                groupId: group.id,
             },
+
             include: {
                 user: {
                     include: {
-                        userdetails: true
-                    }
-                }
-            }
+                        userdetails: true,
+                    },
+                },
+            },
+
+            orderBy: {
+                requestAt: "desc",
+            },
         });
         return NextResponse.json(
-            { contributionDetails, message: "Contribution details retrieved successfully." },
+            { sentrequestDetails, message: "Sending Request details. " },
             { status: 200 }
         )
-    } catch{
+    } catch {
         return NextResponse.json(
             { error: "An unexpected error occurred." },
             { status: 500 }
         )
     }
-
 }

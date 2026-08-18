@@ -30,7 +30,7 @@ export async function contribution(body:{
     month:string,
     
 }){
-      const { groupCode, amount, month } = body;
+    const { groupCode, amount, month } = body;
     const res = await fetch(`/api/group/${groupCode}/contribution`,{
         method:"POST",
         headers:{

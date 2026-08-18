@@ -27,8 +27,10 @@ export default function Home() {
         <p>Build trusted savings groups, automate contributions, and achieve financial goals together.</p>
         <div className="flex items-center justify-center gap-4 mt-7">
           <button
-            onClick={() => router.push("/signup")}
-            className=" text-black border border-[#dadada] bg-white px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer">Get Started  </button>
+          onClick={() => router.push("/signup")} 
+          className="text-black border border-[#dadada] bg-white px-3 py-2 rounded-lg text-[15px]font-medium cursor-pointer transition-all duration-200 ease-out hover:scale-105 active:scale-95">
+            Get Started
+            </button>
           <button 
           className="text-white bg-[#000000] px-3 py-2 rounded-lg text-[15px] font-medium cursor-pointer flex items-center justify-center gap-2">Learn More</button>
         </div>

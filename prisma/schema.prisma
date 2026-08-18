@@ -8,31 +8,33 @@ datasource db {
 }
 
 model User {
-  id                String         @id @default(cuid())
-  email             String         @unique
-  password          String?
-  coustumerId       String         @unique
-  userdetails       Userdetails?
-  sentRequest       Friend[]       @relation("sender")
-  receivedRequests  Friend[]       @relation("receiver")
-  groupAdmin        Group[]        @relation("GroupCreator")
-  groupmembers      Groupmember[]
-  contribution      Contribution[]
+  id                 String              @id @default(cuid())
+  email              String              @unique
+  password           String?
+  coustumerId        String              @unique
+  userdetails        Userdetails?
+  sentRequest        Friend[]            @relation("sender")
+  receivedRequests   Friend[]            @relation("receiver")
+  groupAdmin         Group[]             @relation("GroupCreator")
+  groupmembers       Groupmember[]
+  contribution       Contribution[]
   verificationTokens VerificationToken[]
-  message           Message[]
-  isVerfied         Boolean        @default(false)
-  isCompleteProfile Boolean        @default(false)
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @default(now())
+  sentrequest        Sentrequest[]
+  message            Message[]
+  isVerfied          Boolean             @default(false)
+  isCompleteProfile  Boolean             @default(false)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @default(now())
 }
 
 model VerificationToken {
-  id         String   @id @default(cuid())
-  token      String   @unique
-  expiresAt  DateTime
-  userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
   @@index([userId])
 }
 
@@ -55,6 +57,7 @@ model Friend {
   receiverId String
   sender     User   @relation("sender", fields: [senderId], references: [id], onDelete: Cascade)
   receiver   User   @relation("receiver", fields: [receiverId], references: [id], onDelete: Cascade)
+
   @@unique([senderId, receiverId])
 }
 
@@ -68,6 +71,7 @@ model Group {
   groupmember         Groupmember[]
   contribution        Contribution[]
   message             Message[]
+  sentrequest         Sentrequest[]
   totalAmount         Int
   createdId           String
   createdBy           User           @relation("GroupCreator", fields: [createdId], references: [id], onDelete: Cascade)
@@ -96,6 +100,20 @@ model Contribution {
   paidAt  DateTime @default(now())
 }
 
+model Sentrequest {
+  id        String   @id @default(cuid())
+  userId    String
+  groupId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  reason    String
+  amount    String
+  month     String
+  status     RequestStatus @default(PENDING)
+  requestAt DateTime @default(now())
+  actionAt   DateTime?
+}
+
 model Message {
   id        String   @id @default(cuid())
   userId    String
@@ -111,4 +129,10 @@ enum status {
   PENDING
   PAID
   OVERDUE
+}
+
+enum RequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
 }

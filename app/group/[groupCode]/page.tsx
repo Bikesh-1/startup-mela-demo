@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 import LoginNavbar from "@/components/loginNavbar";
@@ -8,39 +8,57 @@ import { useContributionDetail, useGroupContribution } from "@/hooks/useGroupCon
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { contribution } from "@/services/contribution.service";
 import { toast } from "sonner";
-
+import { sendRequest, updateRequestStatus } from "@/services/request.service";
+import type { SendRequestPayload } from "@/types/request";
+import { useGroupRequests } from "@/hooks/useGroupRequests";
+import { useSession } from "next-auth/react";
 
 
 
 
 export default function GroupPage() {
   const [month, setMonth] = useState("");
+  const [reason, setReason] = useState("");
+  const [amount, setAmount] = useState("");
   const [openContri, setOpenContri] = useState(false);
+  const [openRequest, setOpenRequest] = useState(false);
   const params = useParams();
   const currentMonth = new Date().toISOString().slice(0, 7);
+  const [processingRequest, setProcessingRequest] = useState<{
+    id: string;
+    status: "ACCEPTED" | "REJECTED";
+  } | null>(null);
+  const { data: session } = useSession();
   const groupCode = params.groupCode as string;
   const router = useRouter();
   const {
     data: groupDetails,
-    isPending:isGroupDetailsPending,
-    isError:isGroupDetailsError,
-    error:errorGroupDetails
+    isPending: isGroupDetailsPending,
+    isError: isGroupDetailsError,
+    error: errorGroupDetails
 
   } = useGroupContribution(groupCode);
 
   const {
     data: contributionDetails,
-    isPending:isContributionPending,
-    isError:isContributionError,
-    error:errorContribution
+    isPending: isContributionPending,
+    isError: isContributionError,
+    error: errorContribution
   } = useContributionDetail(groupCode);
+
+  const {
+    data: groupRequests,
+    isPending: isRequestsPending,
+    isError: isRequestsError,
+    error: errorRequests,
+  } = useGroupRequests(groupCode);
+
 
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
     mutationFn: contribution,
-
-    onSuccess:(data) =>{
+    onSuccess: (data) => {
       toast.success(data.message);
       queryClient.invalidateQueries({
         queryKey: ["group", groupCode],
@@ -50,32 +68,122 @@ export default function GroupPage() {
       })
       setOpenContri(false)
     },
-    onError:(error:Error)=>{
+    onError: (error: Error) => {
       toast.error(error.message)
     }
   })
 
-  const handleContribution = (e: React.FormEvent) => {
-  e.preventDefault();
+  const requestMutation = useMutation({
+    mutationFn: ({
+      groupCode,
+      data,
+    }: {
+      groupCode: string;
+      data: SendRequestPayload;
+    }) => sendRequest(groupCode, data),
 
-  mutation.mutate({
-    groupCode,
-    amount: groupDetails?.monthlyContribution??0,
-    month,
+    onSuccess: (data) => {
+      toast.success(data.message);
+
+      queryClient.invalidateQueries({
+        queryKey: ["group", groupCode],
+      });
+
+      setOpenRequest(false);
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message);
+    },
   });
-};
 
-  if (isGroupDetailsPending||isContributionPending) return <p>Loading...</p>;
+  const updateRequestMutation = useMutation({
+    mutationFn: ({
+      groupCode,
+      requestId,
+      status,
+    }: {
+      groupCode: string;
+      requestId: string;
+      status: "ACCEPTED" | "REJECTED";
+    }) =>
+      updateRequestStatus(groupCode, requestId, {
+        status,
+      }),
 
-  if (isGroupDetailsError||isContributionError) return <p>{errorGroupDetails?.message} || {errorContribution?.message}</p>;
+    onSuccess: (data) => {
+      toast.success(data.message);
 
- 
+      queryClient.invalidateQueries({
+        queryKey: ["requests", groupCode],
+      });
+
+      setProcessingRequest(null);
+    },
+
+    onError: (error: Error) => {
+      toast.error(error.message);
+
+      setProcessingRequest(null);
+    },
+  });
+
+  const handleSendRequest = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    requestMutation.mutate({
+      groupCode,
+      data: {
+        reason,
+        amount,
+        month,
+      },
+    });
+  };
+
+
+
+  const handleContribution = (e: React.FormEvent) => {
+    e.preventDefault();
+    mutation.mutate({
+      groupCode,
+      amount: groupDetails?.monthlyContribution ?? 0,
+      month,
+    });
+  };
+
+
+  if (
+    isGroupDetailsPending ||
+    isContributionPending ||
+    isRequestsPending
+  ) {
+    return <p>Loading...</p>;
+  }
+
+
+  if (
+    isGroupDetailsError ||
+    isContributionError ||
+    isRequestsError
+  ) {
+    return (
+      <p>
+        {errorGroupDetails?.message ||
+          errorContribution?.message ||
+          errorRequests?.message}
+      </p>
+    );
+  }
+
+
+
 
   return (
     <div className="min-h-screen w-full relative bg-white">
       <div
         className="absolute inset-0 z-0"
-        style={{ 
+        style={{
           backgroundImage: `linear-gradient(to right, rgba(0,0,0,0.15) 1px, transparent 1px),linear-gradient(to bottom, rgba(0,0,0,0.15) 1px, transparent 1px)`,
           backgroundSize: "20px 20px",
           backgroundPosition: "0 0, 0 0",
@@ -135,10 +243,18 @@ export default function GroupPage() {
               onClick={() => setOpenContri(true)}
               className=" w-auto text-black border border-[#dadada] bg-white px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
             >
-            Contribute
+              Contribute
             </button>
 
-            <button onClick={() => router.push(`/group/${groupCode}/message`)} className="text-white border border-white px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer">Message</button>
+
+            <button onClick={() => router.push(`/group/${groupCode}/message`)} className="text-white border border-white px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer">
+              Message
+            </button>
+
+            <button onClick={() => setOpenRequest(true)} className=" w-auto text-white   bg-red-600 px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer">
+              Request Money
+            </button>
+
           </div>
           <div className="mt-8">
             <h2 className="text-xl font-semibold mb-4">
@@ -196,6 +312,103 @@ export default function GroupPage() {
               </div>
             </div>
           ))}
+          {groupRequests?.sentrequestDetails.map((item) => (
+            <div
+              key={item.id}
+              className="mt-6 space-y-4"
+            >
+              <div className="flex justify-between items-start border-l-2 border-gray-700 pl-4">
+
+                <div className="w-full">
+
+                  {/* Request Information */}
+                  <p className="text-[#dadada]">
+                    <span className="font-semibold">
+                      {item.user.userdetails.name}
+                    </span>{" "}
+                    Requested{" "}
+                    <span className="text-green-400">
+                      ₹{item.amount}
+                    </span>
+                  </p>
+
+                  <p className="text-sm text-gray-500">
+                    {item.month}
+                  </p>
+
+                  <p className="text-sm text-gray-400 mt-1">
+                    Reason: {item.reason}
+                  </p>
+
+                  <p
+                    className={`text-sm mt-1 ${item.status === "PENDING"
+                      ? "text-yellow-400"
+                      : item.status === "ACCEPTED"
+                        ? "text-green-400"
+                        : "text-red-400"
+                      }`}
+                  >
+                    Status: {item.status}
+                  </p>
+
+                  {item.status === "PENDING" &&
+                    item.userId !== session?.user?.email && (
+                      <div className="flex gap-3 mt-4">
+
+                        <button
+                          type="button"
+                          disabled={updateRequestMutation.isPending}
+                          onClick={() => {
+                            setProcessingRequest({
+                              id: item.id,
+                              status: "ACCEPTED",
+                            });
+
+                            updateRequestMutation.mutate({
+                              groupCode,
+                              requestId: item.id,
+                              status: "ACCEPTED",
+                            });
+                          }}
+                          className="px-4 py-2 rounded-lg bg-green-600 text-white text-sm font-medium hover:bg-green-700 disabled:opacity-50"
+                        >
+                          {processingRequest?.id === item.id &&
+                            processingRequest.status === "ACCEPTED"
+                            ? "Processing..."
+                            : "Accept"}
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={updateRequestMutation.isPending}
+                          onClick={() => {
+                            setProcessingRequest({
+                              id: item.id,
+                              status: "REJECTED",
+                            });
+
+                            updateRequestMutation.mutate({
+                              groupCode,
+                              requestId: item.id,
+                              status: "REJECTED",
+                            });
+                          }}
+                          className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-medium hover:bg-red-700 disabled:opacity-50"
+                        >
+                          {processingRequest?.id === item.id &&
+                            processingRequest.status === "REJECTED"
+                            ? "Processing..."
+                            : "Reject"}
+                        </button>
+
+                      </div>
+                    )}
+
+                </div>
+
+              </div>
+            </div>
+          ))}
         </div>
 
       </div>
@@ -250,6 +463,74 @@ export default function GroupPage() {
                 <button
                   className="flex-1 text-black border border-black px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
                   onClick={() => setOpenContri(false)}>Close</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {openRequest && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-10">
+          <div className="w-full max-w-md rounded bg-white text-black p-8 shadow-2xl relative z-10">
+
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-black">
+                Send Request
+              </h2>
+              <p className="mt-2 text-sm text-black">
+                Enter your amount and reason in details.
+              </p>
+            </div>
+
+            <form onSubmit={handleSendRequest} className="space-y-5">
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-black">
+                  Withdraw Amount
+                </label>
+                <input
+                  placeholder="Enter the amount"
+                  type="text"
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full rounded border border-[#2c2c2c] bg-black px-3 py-2 text-white" />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-black">
+                  Month
+                </label>
+                <input
+                  type="month"
+                  readOnly
+                  defaultValue={currentMonth}
+                  placeholder="July"
+                  onChange={(e) => setMonth(e.target.value)}
+                  className="w-full rounded border border-[#2c2c2c] bg-black px-3 py-2 text-white placeholder:text-gray-500 outline-none transition-all duration-200 focus:border-[#dadada] focus:ring-2 focus:ring-[#6D4DFE]/30"
+                />
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-black">
+                  Reason
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Reason"
+                  onChange={(e) => setReason(e.target.value)}
+                  className="w-full rounded border border-[#2c2c2c] bg-black px-3 py-2 text-white placeholder:text-gray-500 outline-none transition-all duration-200 focus:border-[#dadada] focus:ring-2 focus:ring-[#6D4DFE]/30"
+                />
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  disabled={requestMutation.isPending}
+                  type="submit"
+                  className="flex-1 text-white border bg-black px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
+                >
+                  {requestMutation.isPending ? "Sending..." : "Send Request"}
+                </button>
+                <button
+                  className="flex-1 text-black border border-black px-2 py-2 rounded-lg text-[15px] font-medium cursor-pointer"
+                  onClick={() => setOpenRequest(false)}>Close</button>
               </div>
             </form>
           </div>

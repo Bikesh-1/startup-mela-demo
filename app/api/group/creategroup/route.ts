@@ -48,7 +48,7 @@ export async function POST(req: Request) {
             { status: 201 }
         )
 
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             { error: "An unexpected error occurred while creating the group." },
             { status: 500 }
@@ -120,7 +120,7 @@ export async function GET(req: Request) {
             );
         }
         return NextResponse.json({ groupDetails, message: "Groups fetched successfully.", }, { status: 200 })
-    } catch (error) {
+    } catch{
         return NextResponse.json({ error: "An unexpected error occurred while fetching groups." }, { status: 500 })
     }
 }
