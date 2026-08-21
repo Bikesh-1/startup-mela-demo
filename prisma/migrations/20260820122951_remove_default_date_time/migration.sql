@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Contribution" ALTER COLUMN "paidAt" DROP NOT NULL,
+ALTER COLUMN "paidAt" DROP DEFAULT;
